@@ -1,0 +1,24 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\mikolez\\AndroidStudioProjects\\CameraAppGroupJump\\openCVLibrary330\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        },
+        {
+            "outputFile": "C:\\Users\\mikolez\\AndroidStudioProjects\\GroupJump\\openCVLibrary330\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        },
+        {
+            "outputFile": "C:\\Users\\mikolez\\AndroidStudioProjects\\CameraApp\\openCVLibrary330\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        },
+        {
+            "outputFile": "C:\\Users\\mikolez\\AndroidStudioProjects\\CameraAppBulletEffect\\openCVLibrary330\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        },
+        {
+            "outputFile": "C:\\Users\\mikolez\\AndroidStudioProjects\\CameraAppMultiDevicesBT\\openCVLibrary330\\build\\intermediates\\res\\merged\\androidTest\\debug\\values_values.arsc.flat",
+            "map": []
+        }
+    ]
+}
