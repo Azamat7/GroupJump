@@ -115,4 +115,22 @@ public class single_camera_tools {
 
         return result;
     }
+
+    public static List<List<Float>> getAccelerationPeaks(List<Float> accDataList,List<Float> timeDataList, Float mph, Float mpd){
+        List<List<Float>> result = new ArrayList<List<Float>>();
+        List<Integer> peakIndexes = detectPeaks.detect_peaks(accDataList,mph,mpd);
+        List<Float> peaks = new ArrayList<Float>();
+        List<Float> tPeaks = new ArrayList<Float>();
+
+        int lengthPeakIndeces = peakIndexes.size();
+        for (int i=0;i<lengthPeakIndeces;i++){
+            int index = peakIndexes.get(i);
+            peaks.add(accDataList.get(index));
+            tPeaks.add(timeDataList.get(index));
+        }
+
+        result.add(peaks);
+        result.add(tPeaks);
+        return result;
+    }
 }

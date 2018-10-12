@@ -52,8 +52,8 @@ public class slow_motion_code {
         String motion_type = MOTION_TYPE_DIC.get(action_name);
         int real_peak_offset = REAL_PEAK_OFFSET_DIC.get(action_name);
 
-        int mph = peakOptions[0];
-        int mpd = peakOptions[1];
+        float mph = (float) peakOptions[0];
+        float mpd = (float) peakOptions[1];
 
         // 1. Read jump stats to get VideoEnd/start UTC and Data start UTC to compute Offset.
         List<jumpStats> jumpStats = sct.readJumpStats(sourceFolderPath);
@@ -63,6 +63,9 @@ public class slow_motion_code {
         List<List<Float>> accAndTime = sct.readAccelerationData(sourceFolderPath,accDataFileName);
         List<Float> accData = accAndTime.get(0);
         List<Float> timeData = accAndTime.get(1);
+
+        long offset = jumpStats.get(0).getdataOffset();
+        Log.i("offset:", String.valueOf(offset));
 
         // Notes:
         // Use absolute acc values in case if you think it can increase the accuracy of the algorithm
@@ -90,8 +93,25 @@ public class slow_motion_code {
         }
 
 
-        long offset = jumpStats.get(0).getdataOffset();
-        Log.i("offset:", String.valueOf(offset));
+        // 3. Get acceleration peaks
+        List<List<Float>> accTimePeaks = sct.getAccelerationPeaks(accData,timeData,mph,mpd);
+        List<Float> accPeaks = accTimePeaks.get(0);
+        List<Float> timePeaks = accTimePeaks.get(1);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("original: ");
+        int lengthTemp = accPeaks.size();
+        for (int i=0;i<lengthTemp;i++){
+            builder.append(accPeaks.get(i));
+            builder.append(" ");
+        }
+        for (int i=0;i<lengthTemp;i++){
+            builder.append(timePeaks.get(i));
+            builder.append(" ");
+        }
+        Log.i("accPeaks, timePeaks ", builder.toString());
+
+
     }
 
 }
