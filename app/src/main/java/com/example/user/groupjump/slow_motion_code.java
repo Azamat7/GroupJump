@@ -3,6 +3,7 @@ package com.example.user.groupjump;
 import android.util.Log;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ public class slow_motion_code {
     private static Map<String, int[]> PEAK_OPTIONS_DIC = new HashMap<String, int[]>();
     private static Map<String, String> MOTION_TYPE_DIC = new HashMap<String, String>();
     private static Map<String, Integer> REAL_PEAK_OFFSET_DIC = new HashMap<String, Integer>();
+    private static single_camera_tools sct = new single_camera_tools();
 
 
     public slow_motion_code() {
@@ -54,9 +56,39 @@ public class slow_motion_code {
         int mpd = peakOptions[1];
 
         // 1. Read jump stats to get VideoEnd/start UTC and Data start UTC to compute Offset.
-        List<jumpStats> jumpStats = single_camera_tools.readJumpStats(sourceFolderPath);
+        List<jumpStats> jumpStats = sct.readJumpStats(sourceFolderPath);
 
         // 2. Read acceleration data from txt file.
+        String accDataFileName = sct.getAccDataFileName(sourceFolderPath,"Vertical");
+        List<List<Float>> accAndTime = sct.readAccelerationData(sourceFolderPath,accDataFileName);
+        List<Float> accData = accAndTime.get(0);
+        List<Float> timeData = accAndTime.get(1);
+
+        // Notes:
+        // Use absolute acc values in case if you think it can increase the accuracy of the algorithm
+        // For example, sometimes the negative acceleration values are much bigger than the positive one
+        // in this case, using absolute values will provide with higher peak values, which in turn lead to higher threshold
+        // values. Generally, higher threshold i.e. clear difference between true-positive peaks and false-positive peaks
+        // will increase the robustness of the algorithm
+
+        if (toAbs) {
+            List<Float> newAccData = new ArrayList<Float>();
+            int accDataLength = accData.size();
+            for (int i=0;i<accDataLength;i++){
+                newAccData.add(Math.abs(accData.get(i)));
+            }
+            accData = newAccData;
+        }
+
+        if (toFlip){
+            List<Float> newAccData = new ArrayList<Float>();
+            int accDataLength = accData.size();
+            for (int i=0;i<accDataLength;i++){
+                newAccData.add(-1*accData.get(i));
+            }
+            accData = newAccData;
+        }
+
 
         long offset = jumpStats.get(0).getdataOffset();
         Log.i("offset:", String.valueOf(offset));

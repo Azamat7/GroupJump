@@ -1,6 +1,8 @@
 package com.example.user.groupjump;
 
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -61,4 +63,56 @@ public class single_camera_tools {
         return mJumpStats;
     }
 
+    public static String getAccDataFileName(File sourceFolderPath,String tag){
+        String fileName = "";
+        for (File f : sourceFolderPath.listFiles()) {
+            if (f.isFile()) {
+                String name = f.getName();
+                if (name.contains(tag)){
+                    fileName = name;
+                }
+            }
+        }
+        return fileName;
+    }
+
+    public static List<List<Float>> readAccelerationData(File sourceFolderPath,String accDataFileName){
+        File f = new File(sourceFolderPath, accDataFileName);
+
+        List<String> stringDataList = new ArrayList<String>();
+        List<Float> accDataList = new ArrayList<Float>();
+        List<Float> timeDataList = new ArrayList<Float>();
+        List<List<Float>> result = new ArrayList<List<Float>>();
+
+        try {
+            FileInputStream fis = new FileInputStream(f);
+            DataInputStream in = new DataInputStream(fis);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                stringDataList.add(strLine);
+            }
+            br.close();
+            in.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int length = stringDataList.size();
+        for (int i=0;i<length;i++){
+            String line = stringDataList.get(i);
+            String[] x = line.split(" ");
+            Float acc = Float.valueOf(x[0]);
+            Float t = Float.valueOf(x[1]);
+            accDataList.add(acc);
+            timeDataList.add(t);
+        }
+
+        result.add(accDataList);
+        result.add(timeDataList);
+
+        return result;
+    }
 }
