@@ -84,6 +84,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
     private static final String[] VIDEO_PERMISSIONS = {
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
     static {
@@ -118,6 +119,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
     private CameraCaptureSession mPreviewSession;
     private static File VideoData;
     private int orientationOfScreen = Configuration.ORIENTATION_PORTRAIT;
+    private long videoStopTimeInMillis;
 
     /**
      * {@link TextureView.SurfaceTextureListener} handles several lifecycle events on a
@@ -725,14 +727,15 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         }
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         videoFile = getVideoFile(activity);
         mMediaRecorder.setOutputFile(videoFile.getAbsolutePath());
-        mMediaRecorder.setVideoEncodingBitRate(1000000000);
+        mMediaRecorder.setVideoEncodingBitRate(100000000);
         mMediaRecorder.setVideoFrameRate(240);
 //        mMediaRecorder.setCaptureRate(120);
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
+        //mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
+        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         int orientation = ORIENTATIONS.get(rotation);
@@ -754,7 +757,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         File myDir = new File(root + "/MSD/" + currentDateAndTime);
         myDir.mkdirs();
 
-        return new File(myDir, "VIDEO" + ".webm");
+        return new File(myDir, "encoded" + ".mp4");
     }
 
     private void startRecordingVideo() {
@@ -811,7 +814,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         mRecButtonVideo.setEnabled(false);
         // UI
         mIsRecordingVideo = false;
-        VideoActivity.videoStopTimeInMillis = System.currentTimeMillis();
+        videoStopTimeInMillis = System.currentTimeMillis();
         mRecButtonVideo.setText("Processing...");
         // Stop recording
         try {
@@ -866,13 +869,13 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
         int height, width;
 
-        FFmpegMediaMetadataRetriever mediaRetriever = new FFmpegMediaMetadataRetriever();
-        mediaRetriever.setDataSource(filePath);
-
-        Bitmap sample = mediaRetriever.getFrameAtTime(0);
-
-        height = sample.getHeight();
-        width = sample.getWidth();
+//        FFmpegMediaMetadataRetriever mediaRetriever = new FFmpegMediaMetadataRetriever();
+//        mediaRetriever.setDataSource(filePath);
+//
+//        Bitmap sample = mediaRetriever.getFrameAtTime(0);
+//
+//        height = sample.getHeight();
+//        width = sample.getWidth();
 
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/MSD/" + currentDateAndTime);
@@ -909,10 +912,10 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             long jumpEnd = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTimeJumpEnd();
             long dataStartTime = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getDataStartTime();
 
-            long diff = timeToSend - (VideoActivity.videoStopTimeInMillis - duration);
+            long diff = timeToSend - (videoStopTimeInMillis - duration);
             averageTime += diff;
-            jumpStart = jumpStart - (VideoActivity.videoStopTimeInMillis - duration);
-            jumpEnd = jumpEnd - (VideoActivity.videoStopTimeInMillis - duration);
+            jumpStart = jumpStart - (videoStopTimeInMillis - duration);
+            jumpEnd = jumpEnd - (videoStopTimeInMillis - duration);
 
             String deviceId = deviceName + "_" + address;
 
@@ -922,31 +925,31 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
             Log.d(TAG, "Time" + i + ": " + timeToSend);
 
-            Bitmap frame = mediaRetriever.getFrameAtTime(diff * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
-
-            if (orientationOfScreen == Configuration.ORIENTATION_PORTRAIT) {
-                Matrix matrix = new Matrix();
-
-                matrix.postRotate(90);
-
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(frame,width,height,true);
-
-                Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-                saveImage(rotatedBitmap, currentDateAndTime, deviceId);
-
-                savedBitmap = rotatedBitmap;
-
-                savedImages.add(savedBitmap);
-            } else {
-                savedBitmap = frame;
-                saveImage(savedBitmap, currentDateAndTime, deviceId);
-                savedImages.add(savedBitmap);
-            }
+//            Bitmap frame = mediaRetriever.getFrameAtTime(diff * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+//
+//            if (orientationOfScreen == Configuration.ORIENTATION_PORTRAIT) {
+//                Matrix matrix = new Matrix();
+//
+//                matrix.postRotate(90);
+//
+//                Bitmap scaledBitmap = Bitmap.createScaledBitmap(frame,width,height,true);
+//
+//                Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+//
+//                saveImage(rotatedBitmap, currentDateAndTime, deviceId);
+//
+//                savedBitmap = rotatedBitmap;
+//
+//                savedImages.add(savedBitmap);
+//            } else {
+//                savedBitmap = frame;
+//                saveImage(savedBitmap, currentDateAndTime, deviceId);
+//                savedImages.add(savedBitmap);
+//            }
 
             try {
                 BufferedWriter out = new BufferedWriter(new FileWriter(jumpStats, true), 1024);
-                String entry = deviceId + ", " + diff + ", " + jumpStart + ", " + jumpEnd + ", " + duration + ", " + VideoActivity.videoStopTimeInMillis + ", " + dataStartTime + ", " + timeData.get(timeData.size() - 1) + "\n";
+                String entry = deviceId + ", " + diff + ", " + jumpStart + ", " + jumpEnd + ", " + duration + ", " + videoStopTimeInMillis + ", " + dataStartTime + ", " + timeData.get(timeData.size() - 1) + "\n";
                 out.write(entry);
                 out.close();
             } catch (IOException e) {
@@ -1021,30 +1024,34 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 //            ServerConnectionActivity.mServerChatService.writeToOneThread(image, ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i));
         }
 
-        if (nClients == 2) {
-
-            averageTime = averageTime / nClients;
-
-            Bitmap averageFrame = mediaRetriever.getFrameAtTime(averageTime * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
-
-            Matrix matrix = new Matrix();
-
-            matrix.postRotate(90);
-
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
-
-            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-//            saveImage(rotatedBitmap, currentDateAndTime, "Average");
-
-            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1), axis.get(0));
-            Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
-
-            saveImage(blended1, currentDateAndTime, "Blended1");
-            saveImage(blended2, currentDateAndTime, "Blended2");
-        }
+//        if (nClients == 2) {
+//
+//            averageTime = averageTime / nClients;
+//
+//            Bitmap averageFrame = mediaRetriever.getFrameAtTime(averageTime * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+//
+//            Matrix matrix = new Matrix();
+//
+//            matrix.postRotate(90);
+//
+//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
+//
+//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+//
+////            saveImage(rotatedBitmap, currentDateAndTime, "Average");
+//
+//            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1), axis.get(0));
+//            Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
+//
+//            saveImage(blended1, currentDateAndTime, "Blended1");
+//            saveImage(blended2, currentDateAndTime, "Blended2");
+//        }
 
         Toast.makeText(getContext(), "All data is saved!", Toast.LENGTH_SHORT).show();
+
+        slow_motion_code mSlowMotionCode = new slow_motion_code();
+
+        mSlowMotionCode.process_video(myDir,"tennis",true,true,true,false);
     }
 
     private void stopRecordingVideoOnPause() {
