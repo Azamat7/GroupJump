@@ -98,6 +98,22 @@ public class slow_motion_code {
         List<Float> accPeaks = accTimePeaks.get(0);
         List<Float> timePeaks = accTimePeaks.get(1);
 
+        // 4. shift time peaks and time data by the offset in order to synchronize video timeline and data timeline
+        List<Float> adjusted_time_peaks = new ArrayList<Float>();
+        int peaksLen = accPeaks.size();
+        for (int i=0;i<peaksLen;i++){
+            adjusted_time_peaks.add(timePeaks.get(i)+offset);
+        }
+
+        List<Float> adjusted_time_data = new ArrayList<Float>();
+        int timeLen = timeData.size();
+        for (int i=0;i<timeLen;i++){
+            adjusted_time_data.add(timeData.get(i)+offset);
+        }
+
+
+
+        //debugging
         StringBuilder builder = new StringBuilder();
         builder.append("original: ");
         int lengthTemp = accPeaks.size();
@@ -109,7 +125,27 @@ public class slow_motion_code {
             builder.append(timePeaks.get(i));
             builder.append(" ");
         }
-        Log.i("accPeaks, timePeaks ", builder.toString());
+        Log.e("accPeaks, timePeaks ", builder.toString());
+
+        builder = new StringBuilder();
+        builder.append("original: ");
+        for (int i=0;i<lengthTemp;i++){
+            builder.append(adjusted_time_peaks.get(i));
+            builder.append(" ");
+        }
+        Log.e("acctimePeaks adjusted: ", builder.toString());
+
+        if (process){
+            // 5. create ./sm_results/ folder where output slow-mo videos will be located.
+            String resultFolder = "/sm_results";
+            File sm_results_folder = sct.create_folder(sourceFolderPath,resultFolder);
+
+            // 6. Create slow motion video
+            File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,adjusted_time_peaks,slow_options,motion_type,real_peak_offset);
+
+            // 7. save slow_options and peak_options that were used to create the following slow motion video.
+
+        }
 
 
     }

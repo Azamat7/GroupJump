@@ -6,7 +6,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,46 +63,24 @@ public class detectPeaks {
             peak_index.put(peak,index);
         }
 
-        Arrays.sort(peaks.toArray(), Collections.reverseOrder());
-
-        List<Float> newPeaks = new ArrayList<Float>();
-        while (newPeaks!=peaks){
-            int peaksLength = peaks.size();
-            for (int i=0;i<peaksLength;i++) {
-                Float peak = peaks.get(i);
-                List<Integer> eliminate = new ArrayList<Integer>();
-                for (int j=0;j<peaksLength;j++){
-                    Float temp = peaks.get(j);
-                    if (((peak_index.get(temp)-peak_index.get(peak))*(peak_index.get(temp)-peak_index.get(peak)))<(mpd*mpd)){
-                        eliminate.add(j);
-                    }
-                }
-                if (eliminate.size()>0){
-                    newPeaks = new ArrayList<Float>();
-                    for (int j=0;j<peaksLength;j++){
-                        int eliminateLength = eliminate.size();
-                        boolean check = true;
-                        for (int k=0;k<eliminateLength;k++){
-                            if (j==eliminate.get(k)){
-                                check = false;
-                            }
-                        }
-                        if (check){
-                            newPeaks.add(peaks.get(j));
-                        }
-                    }
-                    peaks = newPeaks;
+        List<Integer> ind = new ArrayList<Integer>();
+        int i = 0;
+        while (i<ireLength){
+            int peakIndex = ire.get(i);
+            float max= peaks.get(i);
+            i++;
+            while (i<ireLength){
+                int index = ire.get(i);
+                if ((index-peakIndex)<=50){
+                    max = Math.max(max,peaks.get(i));
+                    i++;
+                }else{
                     break;
                 }
             }
+            ind.add(peak_index.get(max));
         }
 
-        List<Integer> ind = new ArrayList<Integer>();
-        int peaksLength = peaks.size();
-        for (int i=0;i<peaksLength;i++){
-            ind.add(peak_index.get(peaks.get(i)));
-        }
-        Arrays.sort(ind.toArray());
         return ind;
     }
 }

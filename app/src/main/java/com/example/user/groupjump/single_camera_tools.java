@@ -3,6 +3,12 @@ package com.example.user.groupjump;
 
 import android.util.Log;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.VideoWriter;
+import org.opencv.videoio.Videoio;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -132,5 +138,66 @@ public class single_camera_tools {
         result.add(peaks);
         result.add(tPeaks);
         return result;
+    }
+
+    public static File create_folder(File sourceFolderPath, String name){
+        File dir = new File(sourceFolderPath + name);
+        if(dir.exists() && dir.isDirectory()) {
+            return dir;
+        }else{
+            new File(sourceFolderPath + name).mkdir();
+            return dir;
+        }
+    }
+
+    public static File write_slow_video(File sourceFolderPath, File resultsFolderPath, List<Float> tPeaksList, int[] slowOptions, String motinoType, int real_peak_offset){
+        int baseFPS = 24;
+        String input_video = "/encoded.mp4";
+
+        // get slow options
+        int dtGradPre = slowOptions[0];
+        int dtGradPost = slowOptions[1];
+        int dtSlowPre = slowOptions[2];
+        int dtSlowPost = slowOptions[3];
+
+        List<Float> tPeaksAdjustedOffset = new ArrayList<Float>();
+        int tPeaksLen = tPeaksList.size();
+        for (int i=0;i<tPeaksLen;i++){
+            Float time = tPeaksList.get(i);
+            time += real_peak_offset;
+            tPeaksAdjustedOffset.add(time);
+        }
+
+        // outputFolderPath includes results of single run for slow motion
+        // it assures that every new slow motion video trial is saved in separate folders
+        // outputFolderPath = create_datetime_folder(resultsFolderPath);
+
+        //sourceVideo = VideoCapture(sourceFolderPath+input_video);
+        Log.e("Write: ","start");
+
+        VideoCapture vc = new VideoCapture();
+        Mat frame = new Mat();
+        if(vc.open(sourceFolderPath+input_video)) {
+            Log.e("Write: ","opened");
+
+            Size size = new Size(vc.get(Videoio.CAP_PROP_FRAME_WIDTH), vc.get(Videoio.CAP_PROP_FRAME_HEIGHT));
+            double fps = vc.get(Videoio.CAP_PROP_FPS);
+            VideoWriter vw = new VideoWriter(resultsFolderPath.getAbsolutePath()+"slowmotion_output.mp4", VideoWriter.fourcc('X', 'V', 'I', 'D'), fps, size, true);
+
+            for (int i=0;i<100;i++) {
+                Log.e("Write: ",Integer.toString(i));
+                if (vc.read(frame)) {
+                    vw.write(frame);
+                }
+            }
+            frame.release();
+            vc.release();
+            vw.release();
+        } else {
+            Log.e("Write: ","else");
+            System.out.println("Failure");
+        }
+        Log.e("Write: ","finished");
+        return resultsFolderPath;
     }
 }
