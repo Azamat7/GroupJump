@@ -20,22 +20,36 @@ android {
     repositories {
         jcenter()
     }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/opencv/pom.properties'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/opencv/pom.xml'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/ffmpeg/pom.properties'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/ffmpeg/pom.xml'
+    }
+
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation project(path: ':openCVLibrary330')
     implementation 'org.apache.commons:commons-lang3:3.6'
     implementation 'com.android.support:appcompat-v7:27.0.1'
-    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
-    //compile 'com.flurgle:camerakit:0.9.17'
     implementation 'com.wonderkiln:camerakit:0.11.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'org.apache.commons:commons-collections4:4.1'
     implementation 'com.android.support:support-v13:27.0.1'
     implementation 'commons-net:commons-net:3.6'
     testImplementation 'junit:junit:4.12'
+
+    compile group: 'org.bytedeco', name: 'javacv', version: '1.4.3'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-arm'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-x86'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-arm'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-x86'
+
+    compile 'org.jcodec:jcodec:0.2.2'
 }

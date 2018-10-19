@@ -49,12 +49,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfDouble;
-import org.opencv.imgproc.Imgproc;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -69,8 +63,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import wseemann.media.FFmpegMediaMetadataRetriever;
 
 
 public class CaptureHighSpeedVideoMode  extends Fragment
@@ -1147,20 +1139,20 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         return fname;
     }
 
-    private double amountOfBluriness(Bitmap bmp) {
-        Mat destination = new Mat();
-        Mat matGray = new Mat();
-
-        Mat image = new Mat();
-        Utils.bitmapToMat(bmp, image);
-        Imgproc.cvtColor(image, matGray, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.Laplacian(matGray, destination, 3);
-        MatOfDouble median = new MatOfDouble();
-        MatOfDouble std= new MatOfDouble();
-        Core.meanStdDev(destination, median , std);
-
-        return Math.pow(std.get(0,0)[0],2);
-    }
+//    private double amountOfBluriness(Bitmap bmp) {
+//        Mat destination = new Mat();
+//        Mat matGray = new Mat();
+//
+//        Mat image = new Mat();
+//        Utils.bitmapToMat(bmp, image);
+//        Imgproc.cvtColor(image, matGray, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.Laplacian(matGray, destination, 3);
+//        MatOfDouble median = new MatOfDouble();
+//        MatOfDouble std= new MatOfDouble();
+//        Core.meanStdDev(destination, median , std);
+//
+//        return Math.pow(std.get(0,0)[0],2);
+//    }
 
     private Bitmap blendImages(Bitmap bm1, Bitmap bm2, int axis) {
 

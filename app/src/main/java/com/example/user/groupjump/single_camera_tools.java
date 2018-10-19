@@ -1,26 +1,34 @@
 package com.example.user.groupjump;
 
-
+import android.graphics.Bitmap;
 import android.util.Log;
 
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacv.AndroidFrameConverter;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.jcodec.api.SequenceEncoder;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.VideoWriter;
-import org.opencv.videoio.Videoio;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class single_camera_tools {
     public single_camera_tools(){
-
     }
 
     public static List<jumpStats> readJumpStats(File sourceFolderPath){
@@ -152,7 +160,7 @@ public class single_camera_tools {
 
     public static File write_slow_video(File sourceFolderPath, File resultsFolderPath, List<Float> tPeaksList, int[] slowOptions, String motinoType, int real_peak_offset){
         int baseFPS = 24;
-        String input_video = "/encoded.mp4";
+        String input_video = "encoded.mp4";
 
         // get slow options
         int dtGradPre = slowOptions[0];
@@ -173,31 +181,93 @@ public class single_camera_tools {
         // outputFolderPath = create_datetime_folder(resultsFolderPath);
 
         //sourceVideo = VideoCapture(sourceFolderPath+input_video);
-        Log.e("Write: ","start");
 
-        VideoCapture vc = new VideoCapture();
-        Mat frame = new Mat();
-        if(vc.open(sourceFolderPath+input_video)) {
-            Log.e("Write: ","opened");
+        //VideoCapture vc = new VideoCapture();
+        //Mat frame = new Mat();
 
-            Size size = new Size(vc.get(Videoio.CAP_PROP_FRAME_WIDTH), vc.get(Videoio.CAP_PROP_FRAME_HEIGHT));
-            double fps = vc.get(Videoio.CAP_PROP_FPS);
-            VideoWriter vw = new VideoWriter(resultsFolderPath.getAbsolutePath()+"slowmotion_output.mp4", VideoWriter.fourcc('X', 'V', 'I', 'D'), fps, size, true);
+        File videoFile = new File(sourceFolderPath, input_video);
 
-            for (int i=0;i<100;i++) {
-                Log.e("Write: ",Integer.toString(i));
-                if (vc.read(frame)) {
-                    vw.write(frame);
-                }
-            }
-            frame.release();
-            vc.release();
-            vw.release();
-        } else {
-            Log.e("Write: ","else");
-            System.out.println("Failure");
+        FrameGrabber videoGrabber = new FFmpegFrameGrabber(videoFile.getAbsoluteFile());
+        try {
+            videoGrabber.setFormat("mp4");//mp4 for example
+            videoGrabber.start();
+        } catch (Exception e)
+        {
+            Log.e("javacv", "Failed to start grabber" + e);
         }
+        Frame vFrame = null;
+        int i = 0;
+
+        do {
+            try {
+                vFrame = videoGrabber.grabFrame();
+
+                if(vFrame != null){
+                    Log.e("frame: ", Integer.toString(i));
+
+                    if (i%50==0) {
+                        AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
+                        Bitmap bitmap = convertToBitmap.convert(vFrame);
+
+                        String path = resultsFolderPath.getAbsolutePath();
+                        OutputStream fOut = null;
+                        File file = new File(path, "Frame_" + Integer.toString(i) + ".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+                        fOut = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+                        fOut.flush(); // Not really required
+                        fOut.close(); // do not forget to close the stream
+                    }
+
+                }
+                //do your magic here
+            } catch (Exception e) {
+                Log.e("javacv", "video grabFrame failed: "+ e);
+            }
+            i+=1;
+        }while(vFrame!=null);
+
+        try {
+            videoGrabber.stop();
+        }catch (Exception e) {
+            Log.e("javacv", "failed to stop video grabber", e);
+        }
+
         Log.e("Write: ","finished");
+
+
+
+
+
+
+
+
+
+
+
+//        Log.e("Write: ",videoFile.getAbsolutePath());
+////
+////        if(vc.open(videoFile.getAbsolutePath())) {
+////            Log.e("Write: ","opened");
+////
+////            Size size = new Size(vc.get(Videoio.CAP_PROP_FRAME_WIDTH), vc.get(Videoio.CAP_PROP_FRAME_HEIGHT));
+////            double fps = vc.get(Videoio.CAP_PROP_FPS);
+////            VideoWriter vw = new VideoWriter(resultsFolderPath.getAbsolutePath()+"slowmotion_output.mp4", VideoWriter.fourcc('X', 'V', 'I', 'D'), fps, size, true);
+////
+////            for (int i=0;i<100;i++) {
+////                Log.e("Write: ",Integer.toString(i));
+////                if (vc.read(frame)) {
+////                    vw.write(frame);
+////                }
+////            }
+////            frame.release();
+////            vc.release();
+////            vw.release();
+////        } else {
+////            Log.e("Write: ","else");
+////            System.out.println("Failure");
+////        }
+////        Log.e("Write: ","finished");
+
         return resultsFolderPath;
     }
 }
