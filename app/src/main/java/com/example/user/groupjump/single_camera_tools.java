@@ -3,27 +3,27 @@ package com.example.user.groupjump;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+
 import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_videoio;
 import org.bytedeco.javacv.AndroidFrameConverter;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
-import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
-import org.jcodec.api.SequenceEncoder;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
+import org.jcodec.api.android.AndroidSequenceEncoder;
+import org.jcodec.common.io.FileChannelWrapper;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.model.Rational;
+import org.opencv.android.Utils;
 import org.opencv.videoio.VideoWriter;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -198,33 +198,101 @@ public class single_camera_tools {
         Frame vFrame = null;
         int i = 0;
 
-        do {
-            try {
-                vFrame = videoGrabber.grabFrame();
+        opencv_core.Size size = new opencv_core.Size(videoGrabber.getImageWidth(),videoGrabber.getImageHeight());
+        double fps = ((FFmpegFrameGrabber) videoGrabber).getVideoFrameRate();
+        Log.e("Frame Rate: ", String.valueOf(fps));
+        String videoFileName = resultsFolderPath.getAbsolutePath()+"/slowmotion_output.mp4";
+        int fourcc = 0;
+        opencv_videoio.VideoWriter vw = new opencv_videoio.VideoWriter(videoFileName, fourcc, fps, size, true);
+        OpenCVFrameConverter.ToMat converterToMat = new OpenCVFrameConverter.ToMat();
 
-                if(vFrame != null){
-                    Log.e("frame: ", Integer.toString(i));
 
-                    if (i%50==0) {
-                        AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
-                        Bitmap bitmap = convertToBitmap.convert(vFrame);
+        FileChannelWrapper out = null;
+        File dir = resultsFolderPath;
+        File file = new File(dir, "test.mp4");
 
-                        String path = resultsFolderPath.getAbsolutePath();
-                        OutputStream fOut = null;
-                        File file = new File(path, "Frame_" + Integer.toString(i) + ".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
-                        fOut = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-                        fOut.flush(); // Not really required
-                        fOut.close(); // do not forget to close the stream
+        try {
+            out = NIOUtils.writableFileChannel(file.getAbsolutePath());
+            AndroidSequenceEncoder encoder = new AndroidSequenceEncoder(out, Rational.R(15, 1));
+
+
+            do {
+                try {
+                    vFrame = videoGrabber.grabFrame();
+
+                    if(vFrame != null){
+                        Log.e("frame: ", Integer.toString(i));
+
+//                    if (i%10==0){
+//                        opencv_core.Mat mat = converterToMat.convert(vFrame);
+//                        vw.write(mat);
+//                    }
+
+
+                        if (i%50==0) {
+                            AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
+                            Bitmap bitmap = convertToBitmap.convert(vFrame);
+                            encoder.encodeImage(bitmap);
+//                        String path = resultsFolderPath.getAbsolutePath();
+//                        OutputStream fOut = null;
+//                        File file = new File(path, "Frame_" + Integer.toString(i) + ".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+//                        fOut = new FileOutputStream(file);
+//                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+//                        fOut.flush(); // Not really required
+//                        fOut.close(); // do not forget to close the stream
+                        }
+
                     }
-
+                    //do your magic here
+                } catch (Exception e) {
+                    Log.e("javacv", "video grabFrame failed: "+ e);
                 }
-                //do your magic here
-            } catch (Exception e) {
-                Log.e("javacv", "video grabFrame failed: "+ e);
-            }
-            i+=1;
-        }while(vFrame!=null);
+                i+=1;
+            }while(vFrame!=null);
+
+
+
+            encoder.finish();
+        }catch(Exception e){
+            Log.e("encoder: ",e.toString());
+        } finally {
+            NIOUtils.closeQuietly(out);
+        }
+
+
+//        do {
+//            try {
+//                vFrame = videoGrabber.grabFrame();
+//
+//                if(vFrame != null){
+//                    Log.e("frame: ", Integer.toString(i));
+//
+////                    if (i%10==0){
+////                        opencv_core.Mat mat = converterToMat.convert(vFrame);
+////                        vw.write(mat);
+////                    }
+//
+//
+//                    if (i%50==0) {
+//                        AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
+//                        Bitmap bitmap = convertToBitmap.convert(vFrame);
+//
+////                        String path = resultsFolderPath.getAbsolutePath();
+////                        OutputStream fOut = null;
+////                        File file = new File(path, "Frame_" + Integer.toString(i) + ".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+////                        fOut = new FileOutputStream(file);
+////                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+////                        fOut.flush(); // Not really required
+////                        fOut.close(); // do not forget to close the stream
+//                    }
+//
+//                }
+//                //do your magic here
+//            } catch (Exception e) {
+//                Log.e("javacv", "video grabFrame failed: "+ e);
+//            }
+//            i+=1;
+//        }while(vFrame!=null);
 
         try {
             videoGrabber.stop();
@@ -232,8 +300,9 @@ public class single_camera_tools {
             Log.e("javacv", "failed to stop video grabber", e);
         }
 
-        Log.e("Write: ","finished");
 
+        vw.release();
+        Log.e("Write: ","finished");
 
 
 

@@ -52,4 +52,5 @@ dependencies {
     compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-x86'
 
     compile 'org.jcodec:jcodec:0.2.2'
+    compile 'org.jcodec:jcodec-android:0.2.3'
 }
