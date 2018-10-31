@@ -1,5 +1,6 @@
 package com.example.user.groupjump;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
@@ -142,6 +143,20 @@ public class slow_motion_code {
 
             // 6. Create slow motion video
             File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,adjusted_time_peaks,slow_options,motion_type,real_peak_offset);
+
+//            final File sfp = sourceFolderPath;
+//            final File srf = sm_results_folder;
+//            final List<Float> atp = adjusted_time_peaks;
+//            final int[] so = slow_options;
+//            final String mt = motion_type;
+//            final int rpo = real_peak_offset;
+//
+//            AsyncTask.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    File outputFolderPath = sct.write_slow_video(sfp,srf,atp,so,mt,rpo);
+//                }
+//            });
 
             // 7. save slow_options and peak_options that were used to create the following slow motion video.
 
