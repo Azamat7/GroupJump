@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class single_camera_tools {
+    private static int videoDuration;
+
     public single_camera_tools(){
     }
 
@@ -67,7 +69,7 @@ public class single_camera_tools {
         int targetTime = Integer.valueOf(row[1].replaceAll("\\s",""));
         int tJumpStart = Integer.valueOf(row[2].replaceAll("\\s",""));
         int tJumpEnd = Integer.valueOf(row[3].replaceAll("\\s",""));
-        int videoDuration = Integer.valueOf(row[4].replaceAll("\\s",""));
+        videoDuration = Integer.valueOf(row[4].replaceAll("\\s",""));
         long videoEndUTC = Long.parseLong(row[5].replaceAll("\\s",""));
         long dataStartUTC = Long.parseLong(row[6].replaceAll("\\s",""));
         int dataDuration = Integer.valueOf(row[7].replaceAll("\\s",""));
@@ -203,33 +205,9 @@ public class single_camera_tools {
         Log.e("Frame Rate: ", String.valueOf(sourceFPS));
 
 
-        List<Frame> frames = new ArrayList<Frame>();
-        //List<Bitmap> bitmaps = new ArrayList<Bitmap>();
-        AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
-        do {
-            try {
-                vFrame = videoGrabber.grabFrame();
-
-                if(vFrame != null){
-                    //Bitmap bitmap = convertToBitmap.convert(vFrame);
-                    //bitmaps.add(bitmap);
-                    frames.add(vFrame);
-                    Log.e("frame: ", Integer.toString(i));
-                }
-            } catch (Exception e) {
-                Log.e("javacv", "video grabFrame failed: "+ e);
-            }
-            i+=1;
-        }while(vFrame!=null);
-        try {
-            videoGrabber.stop();
-        }catch (Exception e) {
-            Log.e("javacv", "failed to stop video grabber", e);
-        }
-        Log.e("Read: ","finished");
-
-
-        int nTotalFrameSource = i;
+        //int nTotalFrameSource = i;
+        Double x = videoDuration*sourceFPS/1000;
+        int nTotalFrameSource = x.intValue();
         Log.e("Frame Number: ", Integer.toString(nTotalFrameSource));
 
 
@@ -243,7 +221,9 @@ public class single_camera_tools {
         //}
         Log.e("Frames: ",Integer.toString(baseFramesIndices.size()+slowFramesIndices.size()+gradStartFramesIndices.size()+gradEndFramesIndices.size()));
 
-
+        for (int z=0;z<gradStartFramesIndices.size();z++){
+            Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
+        }
 
         FileChannelWrapper out = null;
         File dir = resultsFolderPath;
@@ -251,20 +231,47 @@ public class single_camera_tools {
         try {
             out = NIOUtils.writableFileChannel(file.getAbsolutePath());
             AndroidSequenceEncoder encoder = new AndroidSequenceEncoder(out, Rational.R(15, 1));
-            //AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
-
-            for (int j = 0; j<nTotalFrameSource; j++){
-                if (baseFramesIndices.contains(j) || slowFramesIndices.contains(j) || gradStartFramesIndices.contains(j) || gradEndFramesIndices.contains(j)){
-                    try{
-                        Log.e("Frame written:",Integer.toString(j));
-                        Bitmap bitmap = convertToBitmap.convert(frames.get(j));
-                        encoder.encodeImage(bitmap);
-                    }catch (Exception e){
-                        Log.e("Not written: ", e.toString());
+            AndroidFrameConverter convertToBitmap = new AndroidFrameConverter();
+            do {
+                try {
+                    vFrame = videoGrabber.grabFrame();
+                    if(vFrame != null){
+                        if (baseFramesIndices.contains(i) || slowFramesIndices.contains(i) || gradStartFramesIndices.contains(i) || gradEndFramesIndices.contains(i)){
+                            try{
+                                Log.e("Frame written:",Integer.toString(i));
+                                Bitmap bitmap = convertToBitmap.convert(vFrame);
+                                encoder.encodeImage(bitmap);
+                                Log.e("frame: ", Integer.toString(i));
+                            }catch (Exception e){
+                                Log.e("Not written: ", e.toString());
+                            }
+                        }
                     }
-                    //encoder.encodeImage(bitmaps.get(j));
+                } catch (Exception e) {
+                    Log.e("javacv", "video grabFrame failed: "+ e);
                 }
+                i+=1;
+            }while(vFrame!=null);
+            try {
+                videoGrabber.stop();
+            }catch (Exception e) {
+                Log.e("javacv", "failed to stop video grabber", e);
             }
+
+
+
+//            for (int j = 0; j<nTotalFrameSource; j++){
+//                if (baseFramesIndices.contains(j) || slowFramesIndices.contains(j) || gradStartFramesIndices.contains(j) || gradEndFramesIndices.contains(j)){
+//                    try{
+//                        Log.e("Frame written:",Integer.toString(j));
+//                        Bitmap bitmap = convertToBitmap.convert(frames.get(j));
+//                        encoder.encodeImage(bitmap);
+//                    }catch (Exception e){
+//                        Log.e("Not written: ", e.toString());
+//                    }
+//                    //encoder.encodeImage(bitmaps.get(j));
+//                }
+//            }
 
             encoder.finish();
         }catch(Exception e){
@@ -417,21 +424,20 @@ public class single_camera_tools {
     }
 
     private static List<Integer> slowTimeInterval(int tStart, int tEnd, double baseFPS, double sourceFps, int slowFactor){
-        Double a = (tStart/1000)*sourceFps;
+        Double a = (tStart*sourceFps/1000);
         int frameSlowStart = a.intValue();
-        Double b = (tEnd/1000)*sourceFps;
+        Double b = (tEnd*sourceFps/1000);
         int frameSlowEnd = b.intValue();
 
-        int nSourceFrames = frameSlowEnd - frameSlowStart;
-        Double c = nSourceFrames * (baseFPS/sourceFps);
-        int nBaseFrames = c.intValue();
+        float nSourceFrames = frameSlowEnd - frameSlowStart;
+        float nBaseFrames = (float)(nSourceFrames * (baseFPS/sourceFps));
 
-        int nSlowFrames = nBaseFrames * slowFactor;
+        float nSlowFrames = nBaseFrames * slowFactor;
 
         // step: required for range step in picking frames for slow motion from source frames.
         List<Integer> indices = new ArrayList<Integer>();
         if (nSlowFrames!=0){
-            int step = nSourceFrames/nSlowFrames;
+            float step = nSourceFrames/nSlowFrames;
             for (int j=frameSlowStart;j<frameSlowEnd;j+=step){
                 indices.add(j);
             }
@@ -463,8 +469,12 @@ public class single_camera_tools {
 
         List<Integer> gradIndices = new ArrayList<Integer>();
 
+        Log.e("sdf","YAY");
         for (int k=0; k<edgePairs.size();k++){
+            Log.e("edgePairs.get(k).get(0)",Integer.toString(edgePairs.get(k).get(0)));
+            Log.e("edgePairs.get(k).get(1)",Integer.toString(edgePairs.get(k).get(1)));
             List<Integer> temp = slowTimeInterval(edgePairs.get(k).get(0),edgePairs.get(k).get(1),baseFPS,sourceFPS,slowRatesList[k]);
+            Log.e("temp.size()",Integer.toString(temp.size()));
             gradIndices.addAll(temp);
         }
 
