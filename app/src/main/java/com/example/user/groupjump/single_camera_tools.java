@@ -162,7 +162,7 @@ public class single_camera_tools {
     }
 
     public static File write_slow_video(File sourceFolderPath, File resultsFolderPath, List<Float> tPeaksList, int[] slowOptions, String motinoType, int real_peak_offset){
-        int baseFPS = 24;
+        int baseFPS = 22;
         String input_video = "encoded.mp4";
 
         // get slow options
