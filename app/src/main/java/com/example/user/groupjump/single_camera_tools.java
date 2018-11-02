@@ -1,27 +1,16 @@
 package com.example.user.groupjump;
 
-import android.graphics.Bitmap;
+import android.app.Activity;
+import android.hardware.camera2.TotalCaptureResult;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
-
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_videoio;
-import org.bytedeco.javacv.AndroidFrameConverter;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.FrameRecorder;
-import org.bytedeco.javacv.OpenCVFrameConverter;
-import org.jcodec.api.android.AndroidSequenceEncoder;
-import org.jcodec.codecs.mpeg4.MPEG4Renderer;
-import org.jcodec.common.DictionaryCompressor;
-import org.jcodec.common.io.FileChannelWrapper;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.Rational;
-import org.opencv.android.Utils;
-import org.opencv.videoio.VideoWriter;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -200,7 +189,7 @@ public class single_camera_tools {
 
         //int nTotalFrameSource = i;
         Double x = videoDuration*sourceFPS/1000;
-        int nTotalFrameSource = x.intValue();
+        final int nTotalFrameSource = x.intValue();
         Log.e("Frame Number: ", Integer.toString(nTotalFrameSource));
 
         //if (motinoType.equals("swing")){
@@ -216,44 +205,80 @@ public class single_camera_tools {
             Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
         }
 
-        File resultsFolder = resultsFolderPath;
+        final File resultsFolder = resultsFolderPath;
 
-        File file = new File(resultsFolder, "test.mp4");
-        Frame vFrame = null;
-        int i = 0;
-        try {
-            FrameRecorder recorder = new FFmpegFrameRecorder(file,videoGrabber.getImageWidth(),videoGrabber.getImageHeight());
-            recorder.setFrameRate(24);
-            recorder.setVideoBitrate(100000000);
-            recorder.start();
-            do {
+
+
+
+
+        class writeVideo extends AsyncTask<Void,String,Void>{
+            @Override
+            protected Void doInBackground(Void... voids) {
+                File file = new File(resultsFolder, "test.mp4");
+                Frame vFrame = null;
+                int i = 0;
                 try {
-                    vFrame = videoGrabber.grabFrame();
-                    if(vFrame != null){
-                        if (baseFramesIndices.contains(i) || slowFramesIndices.contains(i) || gradStartFramesIndices.contains(i) || gradEndFramesIndices.contains(i)){
-                            try{
-                                Log.e("Frame written:",Integer.toString(i));
-                                recorder.record(vFrame);
-                            }catch (Exception e){
-                                Log.e("Not written: ", e.toString());
+                    FrameRecorder recorder = new FFmpegFrameRecorder(file,videoGrabber.getImageWidth(),videoGrabber.getImageHeight());
+                    recorder.setFrameRate(24);
+                    recorder.setVideoBitrate(100000000);
+                    recorder.start();
+                    int ratio = 10;
+                    do {
+                        try {
+                            vFrame = videoGrabber.grabFrame();
+                            if(vFrame != null){
+                                if (baseFramesIndices.contains(i) || slowFramesIndices.contains(i) || gradStartFramesIndices.contains(i) || gradEndFramesIndices.contains(i)){
+                                    try{
+                                        int currentRatio = Math.round(i*100/nTotalFrameSource);
+                                        if (currentRatio>ratio) {
+                                            String message = "Completion: ";
+                                            message += Integer.toString(ratio);
+                                            message += " %";
+                                            publishProgress(message);
+                                            ratio+=10;
+                                        }
+                                        Log.e("Frame written:",Integer.toString(i));
+                                        recorder.record(vFrame);
+                                    }catch (Exception e){
+                                        Log.e("Not written: ", e.toString());
+                                    }
+                                }
                             }
+                        } catch (Exception e) {
+                            Log.e("javacv", "video grabFrame failed: "+ e);
                         }
+                        i+=1;
+                    }while(vFrame!=null);
+                    recorder.stop();
+                    try {
+                        videoGrabber.stop();
+                    }catch (Exception e) {
+                        Log.e("javacv", "failed to stop video grabber", e);
                     }
-                } catch (Exception e) {
-                    Log.e("javacv", "video grabFrame failed: "+ e);
+                }catch(Exception e){
+                    Log.e("encoder: ",e.toString());
+                } finally {
                 }
-                i+=1;
-            }while(vFrame!=null);
-            recorder.stop();
-            try {
-                videoGrabber.stop();
-            }catch (Exception e) {
-                Log.e("javacv", "failed to stop video grabber", e);
+                return null;
             }
-        }catch(Exception e){
-            Log.e("encoder: ",e.toString());
-        } finally {
+
+            @Override
+            protected void onProgressUpdate(String... values) {
+                super.onProgressUpdate(values);
+                VideoHighFPSActivity.videoWritingToast(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                VideoHighFPSActivity.videoWritingToast("Video writing finished");
+            }
         }
+
+        writeVideo task = new writeVideo();
+        task.execute();
+
+
 
         return resultsFolderPath;
     }

@@ -1,8 +1,10 @@
 package com.example.user.groupjump;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ public class VideoHighFPSActivity extends AppCompatActivity {
     public static BluetoothConnectionService mBluetoothConnectionService;
     public static boolean isTimeReceived = false;
 
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,5 +30,10 @@ public class VideoHighFPSActivity extends AppCompatActivity {
                     .replace(R.id.container, CaptureHighSpeedVideoMode.newInstance())
                     .commit();
         }
+        VideoHighFPSActivity.context = getApplicationContext();
+    }
+
+    public static void videoWritingToast(String message){
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }
