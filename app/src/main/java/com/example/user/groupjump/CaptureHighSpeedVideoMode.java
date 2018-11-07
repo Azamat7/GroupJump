@@ -1041,9 +1041,13 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
         Toast.makeText(getContext(), "All data is saved!", Toast.LENGTH_SHORT).show();
 
-        slow_motion_code mSlowMotionCode = new slow_motion_code();
 
-        mSlowMotionCode.process_video(myDir,"tennis",true,true,true,false);
+        String mode = VideoHighFPSActivity.getMode();
+        if (mode.equals("slowmotion")) {
+            slow_motion_code mSlowMotionCode = new slow_motion_code();
+
+            mSlowMotionCode.process_video(myDir, "tennis", true, true, true, false);
+        }
     }
 
     private void stopRecordingVideoOnPause() {

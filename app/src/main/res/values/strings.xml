@@ -7,6 +7,12 @@
         <item>4</item>
     </string-array>
 
+    <string-array name="modes_array">
+        <item>"slowmotion"</item>
+        <item>"jump"</item>
+        <item>"boxing"</item>
+    </string-array>
+
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>

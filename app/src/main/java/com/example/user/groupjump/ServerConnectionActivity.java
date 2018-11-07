@@ -28,9 +28,11 @@ import static com.example.user.groupjump.Constants.TOAST;
 
 
 public class ServerConnectionActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
-    private Spinner spinner;
+    private Spinner clientsSpinner;
+    private Spinner modeSpinner;
     private static final String TAG = "ServConnAct";
     private int nClients;
+    private String mode;
 
     // Debugging
     private static final boolean D = true;
@@ -60,14 +62,23 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_connection);
 
-        spinner = (Spinner) findViewById(R.id.clients_spinner);
+        clientsSpinner = (Spinner) findViewById(R.id.clients_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.clients_array, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        clientsSpinner.setAdapter(adapter);
+        clientsSpinner.setOnItemSelectedListener(this);
+
+        modeSpinner = (Spinner) findViewById(R.id.mode_spinner);
+        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(this,
+                R.array.modes_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        modeSpinner.setAdapter(modeAdapter);
+        modeSpinner.setOnItemSelectedListener(this);
 
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -205,10 +216,18 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
     // when item from Spinner is selected
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        int n = Integer.parseInt(spinner.getSelectedItem().toString());
-        Log.e("onItemSelected: ",""+n);
-        nClients = n;
+
+        Spinner spinner =(Spinner) parent;
+
+        if (spinner.getId()==R.id.clients_spinner) {
+
+            // An item was selected. You can retrieve the selected item using
+            int n = Integer.parseInt(clientsSpinner.getSelectedItem().toString());
+            Log.e("onItemSelected: ", "" + n);
+            nClients = n;
+        }else{
+            mode = modeSpinner.getSelectedItem().toString();
+        }
 
     }
     private void checkBTPermissions() {
@@ -249,6 +268,7 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
 
         }
         Intent videoIntent = new Intent(this, VideoHighFPSActivity.class);
+        videoIntent.putExtra("mode",mode);
         startActivity(videoIntent);
 
     }

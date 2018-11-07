@@ -1,9 +1,11 @@
 package com.example.user.groupjump;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.UUID;
@@ -19,11 +21,16 @@ public class VideoHighFPSActivity extends AppCompatActivity {
     public static boolean isTimeReceived = false;
 
     public static Context context;
+    private static String mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_high_fps);
+
+        Intent intent = getIntent();
+        mode = intent.getExtras().getString("mode");
+        Log.e("mode: ", mode);
 
         if (null == savedInstanceState) {
             getFragmentManager().beginTransaction()
@@ -35,5 +42,9 @@ public class VideoHighFPSActivity extends AppCompatActivity {
 
     public static void videoWritingToast(String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static String getMode(){
+        return mode;
     }
 }
