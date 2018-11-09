@@ -3,6 +3,7 @@ package com.example.user.groupjump;
 import android.app.Activity;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -79,6 +80,21 @@ public class single_camera_tools {
             if (f.isFile()) {
                 String name = f.getName();
                 if (name.contains(tag)){
+                    fileName = name;
+                }
+            }
+        }
+        return fileName;
+    }
+
+    public static String getAccDataFileName(File source_folder_path,String phone_id,String acc_data_type){
+        String fileName = "";
+        for (File f : source_folder_path.listFiles()) {
+            if (f.isFile()) {
+                String name = f.getName();
+                String[] temp = name.split(" ");
+                String newName = TextUtils.join("",temp);
+                if (newName.contains(phone_id) && newName.contains(acc_data_type)){
                     fileName = name;
                 }
             }

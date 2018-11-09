@@ -1044,9 +1044,13 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
         String mode = VideoHighFPSActivity.getMode();
         if (mode.equals("slowmotion")) {
-            slow_motion_code mSlowMotionCode = new slow_motion_code();
-
-            mSlowMotionCode.process_video(myDir, "tennis", true, true, true, false);
+            if (nClients==1) {
+                slow_motion_code mSlowMotionCode = new slow_motion_code();
+                mSlowMotionCode.process_video(myDir, "tennis", true, true, true, false);
+            }else if (nClients==2){
+                pingpong_multiple_slow_motion pmsm = new pingpong_multiple_slow_motion();
+                pmsm.process_video(myDir);
+            }
         }
     }
 

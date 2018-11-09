@@ -8,33 +8,6 @@
     android:layout_margin="10dp">
 
     <TextView
-        android:text="How many people will jump?"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Spinner
-
-            android:id="@+id/clients_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-        <Button
-            android:text="OK"
-            android:onClick="okButtonPressed"
-            android:id="@+id/button_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <TextView
         android:text="Choose the mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,13 +20,45 @@
         android:orientation="horizontal">
 
         <Spinner
-
             android:id="@+id/mode_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
     </LinearLayout>
+
+
+
+
+    <TextView
+        android:text="How many people will jump?"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Spinner
+
+            android:id="@+id/clients_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="okButtonPressed"
+            android:text="OK" />
+
+    </LinearLayout>
+
+
 
 
 </LinearLayout>
