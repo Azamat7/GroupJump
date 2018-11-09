@@ -3,15 +3,10 @@
     <string-array name="clients_array">
         <item>1</item>
         <item>2</item>
-        <item>3</item>
-        <item>4</item>
     </string-array>
 
-    <string-array name="modes_array">
-        <item>"slowmotion"</item>
-        <item>"jump"</item>
-        <item>"boxing"</item>
-    </string-array>
+    <string name="radio_slowmotion">Slowmotion Video</string>
+    <string name="radio_jump">Jumping Photo</string>
 
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>

@@ -7,12 +7,16 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -29,10 +33,13 @@ import static com.example.user.groupjump.Constants.TOAST;
 
 public class ServerConnectionActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
     private Spinner clientsSpinner;
-    private Spinner modeSpinner;
     private static final String TAG = "ServConnAct";
-    private int nClients;
-    private String mode;
+    private int nClients = 1;
+    private RadioGroup modes;
+    private String mode = "slowmotion";
+    private ConstraintLayout mConstraintLayout;
+    private Button okButton;
+
 
     // Debugging
     private static final boolean D = true;
@@ -62,6 +69,40 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server_connection);
 
+        mConstraintLayout = (ConstraintLayout) findViewById(R.id.clientsNumber);
+        okButton = (Button) findViewById(R.id.button_ok);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                okButton.setText("Waiting...");
+                okButton.setEnabled(false);
+                Toast.makeText(getApplicationContext(), "Waiting for another device to connect", Toast.LENGTH_SHORT).show();
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // here we create server with defined number of clients.
+
+                        // mClientChatService.start() will run the Accept Thread and create server sockets.
+                        setupChat();
+                        mServerChatService.start();
+                        mServerChatService.setIsServer();
+
+                        while (mServerChatService.getConnectedThreads().size() < nClients) {
+
+                        }
+                        Intent videoIntent = new Intent(getApplicationContext(), VideoHighFPSActivity.class);
+                        videoIntent.putExtra("mode",mode);
+                        startActivity(videoIntent);
+                    }
+                }, 100);
+
+
+            }
+        });
+
         clientsSpinner = (Spinner) findViewById(R.id.clients_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.clients_array, android.R.layout.simple_spinner_item);
@@ -71,14 +112,26 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
         clientsSpinner.setAdapter(adapter);
         clientsSpinner.setOnItemSelectedListener(this);
 
-        modeSpinner = (Spinner) findViewById(R.id.mode_spinner);
-        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(this,
-                R.array.modes_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        modeSpinner.setAdapter(modeAdapter);
-        modeSpinner.setOnItemSelectedListener(this);
+        modes = (RadioGroup) findViewById(R.id.modes);
+        modes.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                //get selected radio button from RadioGroup
+                int selectedMode = modes.getCheckedRadioButtonId();
+                //find the mode by returned radiobutton id
+                RadioButton radioButton = (RadioButton) findViewById(selectedMode);
+                String modeName = radioButton.getText().toString();
+                if (modeName.equals("Slowmotion Video")){
+                    mode = "slowmotion";
+                    nClients = 1;
+                    mConstraintLayout.setVisibility(View.INVISIBLE);
+                }else{
+                    mode = "jump";
+                    nClients = Integer.parseInt(clientsSpinner.getSelectedItem().toString());
+                    mConstraintLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -216,19 +269,10 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
     // when item from Spinner is selected
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
-
-        Spinner spinner =(Spinner) parent;
-
-        if (spinner.getId()==R.id.clients_spinner) {
-
-            // An item was selected. You can retrieve the selected item using
-            int n = Integer.parseInt(clientsSpinner.getSelectedItem().toString());
-            Log.e("onItemSelected: ", "" + n);
-            nClients = n;
-        }else{
-            mode = modeSpinner.getSelectedItem().toString();
-        }
-
+        // An item was selected. You can retrieve the selected item using
+        int n = Integer.parseInt(clientsSpinner.getSelectedItem().toString());
+        Log.e("onItemSelected: ", "" + n);
+        nClients = n;
     }
     private void checkBTPermissions() {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP){
@@ -252,24 +296,25 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
 
 
     // When OK button is pressed
-    public void okButtonPressed(View view) {
-
-
-        // here we create server with defined number of clients.
-
-
-        // mClientChatService.start() will run the Accept Thread and create server sockets.
-        setupChat();
-        mServerChatService.start();
-        mServerChatService.setIsServer();
-        Toast.makeText(getApplicationContext(), "waiting for connection", Toast.LENGTH_SHORT).show();
-
-        while (mServerChatService.getConnectedThreads().size() < nClients) {
-
-        }
-        Intent videoIntent = new Intent(this, VideoHighFPSActivity.class);
-        videoIntent.putExtra("mode",mode);
-        startActivity(videoIntent);
-
-    }
+//    public void okButtonPressed(View view) {
+//        okButton.setEnabled(false);
+//        okButton.setText("Waiting...");
+//        Toast.makeText(this, "Waiting for another device to connect", Toast.LENGTH_SHORT).show();
+//
+//        // here we create server with defined number of clients.
+//
+//        // mClientChatService.start() will run the Accept Thread and create server sockets.
+//        setupChat();
+//        mServerChatService.start();
+//        mServerChatService.setIsServer();
+//        Toast.makeText(getApplicationContext(), "waiting for connection", Toast.LENGTH_SHORT).show();
+//
+//        while (mServerChatService.getConnectedThreads().size() < nClients) {
+//
+//        }
+//        Intent videoIntent = new Intent(this, VideoHighFPSActivity.class);
+//        videoIntent.putExtra("mode",mode);
+//        startActivity(videoIntent);
+//
+//    }
 }
