@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -95,39 +96,45 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
 //            }
 //        });
         mConnectLast = (Button) findViewById(R.id.connect_last);
-        final String name = "Galaxy S8";
-        final String address = "50:77:05:5B:BA:18";
-        mConnectLast.setText("Connect to "+name);
-        mConnectLast.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        String defaultString = "default";
+        final String name = sharedPref.getString(getString(R.string.lastDeviceName),defaultString);
+        final String address = sharedPref.getString(getString(R.string.lastDeviceAddress),defaultString);
+        if (name=="default"){
+            mConnectLast.setVisibility(View.INVISIBLE);
+        }else {
+            mConnectLast.setText("Connect to " + name);
+            mConnectLast.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 
-                //create the bond.
-                //NOTE: Requires API 17+? I think this is JellyBean
-                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
-                    device.createBond();
+                    //create the bond.
+                    //NOTE: Requires API 17+? I think this is JellyBean
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        device.createBond();
 
-                    // connect to the bonded mBTDevice
-                    mClientChatService.connect(device);
-                }
-                long timeInitial = System.currentTimeMillis();
-                boolean connected = true;
-                while (mClientChatService.getConnectedThreads().size()  < N_CLIENTS) {
-                    long timeNow = System.currentTimeMillis();
-                    if ((timeNow-timeInitial)>3000){
-                        connected = false;
-                        break;
+                        // connect to the bonded mBTDevice
+                        mClientChatService.connect(device);
+                    }
+                    long timeInitial = System.currentTimeMillis();
+                    boolean connected = true;
+                    while (mClientChatService.getConnectedThreads().size() < N_CLIENTS) {
+                        long timeNow = System.currentTimeMillis();
+                        if ((timeNow - timeInitial) > 3000) {
+                            connected = false;
+                            break;
+                        }
+                    }
+                    if (connected) {
+                        Intent dataIntent = new Intent(getApplicationContext(), DataActivity.class);
+                        startActivity(dataIntent);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Couldn't connect to " + name + ". Please try again.", Toast.LENGTH_LONG).show();
                     }
                 }
-                if (connected){
-                    Intent dataIntent = new Intent(getApplicationContext(), DataActivity.class);
-                    startActivity(dataIntent);
-                }else{
-                    Toast.makeText(getApplicationContext(), "Couldn't connect to "+name+". Please try again.", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+            });
+        }
 
         lvNewDevices = (ListView) findViewById(R.id.lvNewDevices);
         lvNewDevices.setOnItemClickListener(ClientConnectionActivity.this);
@@ -387,11 +394,26 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
             // connect to the bonded mBTDevice
             mClientChatService.connect(mBTDevice);
         }
+        long timeInitial = System.currentTimeMillis();
+        boolean connected = true;
         while (mClientChatService.getConnectedThreads().size()  < N_CLIENTS) {
-
+            long timeNow = System.currentTimeMillis();
+            if ((timeNow-timeInitial)>3000){
+                connected = false;
+                break;
+            }
         }
-        Intent dataIntent = new Intent(this, DataActivity.class);
-        startActivity(dataIntent);
+        if (connected) {
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(getString(R.string.lastDeviceAddress),deviceAddress);
+            editor.putString(getString(R.string.lastDeviceName),deviceName);
+            editor.commit();
+            Intent dataIntent = new Intent(this, DataActivity.class);
+            startActivity(dataIntent);
+        }else{
+            Toast.makeText(getApplicationContext(), "Couldn't connect to " + deviceName + ". Please try again.", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void btnDiscover(View view) {

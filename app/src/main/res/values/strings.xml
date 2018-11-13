@@ -8,6 +8,9 @@
     <string name="radio_slowmotion">Slowmotion Video</string>
     <string name="radio_jump">Jumping Photo</string>
 
+    <string name="lastDeviceAddress">lastDeviceAddress</string>
+    <string name="lastDeviceName">lastDeviceName</string>
+
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
