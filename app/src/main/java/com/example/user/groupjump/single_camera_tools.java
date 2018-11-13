@@ -223,10 +223,6 @@ public class single_camera_tools {
 
         final File resultsFolder = resultsFolderPath;
 
-
-
-
-
         class writeVideo extends AsyncTask<Void,String,Void>{
             @Override
             protected Void doInBackground(Void... voids) {

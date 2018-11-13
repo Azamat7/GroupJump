@@ -3,6 +3,7 @@ package com.example.user.groupjump;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,6 +53,7 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
     private Button btnDiscoverDevices;
     private Button btnEnableDisable_Discoverable;
     private ListView lvNewDevices;
+    private Button mConnectLast;
 
     // Name of the connected device
     private String mConnectedDeviceName = null;
@@ -85,11 +87,45 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
 
         btnDiscoverDevices = (Button) findViewById(R.id.btnDiscoverDevices);
 
-        btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
-        btnEnableDisable_Discoverable.setOnClickListener(new View.OnClickListener() {
+        //btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
+//        btnEnableDisable_Discoverable.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ensureDiscoverable();
+//            }
+//        });
+        mConnectLast = (Button) findViewById(R.id.connect_last);
+        final String name = "Galaxy S8";
+        final String address = "50:77:05:5B:BA:18";
+        mConnectLast.setText("Connect to "+name);
+        mConnectLast.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                ensureDiscoverable();
+            public void onClick(View v) {
+                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+
+                //create the bond.
+                //NOTE: Requires API 17+? I think this is JellyBean
+                if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
+                    device.createBond();
+
+                    // connect to the bonded mBTDevice
+                    mClientChatService.connect(device);
+                }
+                long timeInitial = System.currentTimeMillis();
+                boolean connected = true;
+                while (mClientChatService.getConnectedThreads().size()  < N_CLIENTS) {
+                    long timeNow = System.currentTimeMillis();
+                    if ((timeNow-timeInitial)>3000){
+                        connected = false;
+                        break;
+                    }
+                }
+                if (connected){
+                    Intent dataIntent = new Intent(getApplicationContext(), DataActivity.class);
+                    startActivity(dataIntent);
+                }else{
+                    Toast.makeText(getApplicationContext(), "Couldn't connect to "+name+". Please try again.", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -155,19 +191,19 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
         mConversationView.setAdapter(mConversationArrayAdapter);
 
         // Initialize the compose field with a listener for the return key
-        mOutEditText = (EditText) findViewById(R.id.edit_text_out);
-        mOutEditText.setOnEditorActionListener(mWriteListener);
+//        mOutEditText = (EditText) findViewById(R.id.edit_text_out);
+//        mOutEditText.setOnEditorActionListener(mWriteListener);
 
         // Initialize the send button with a listener that for click events
-        mSendButton = (Button) findViewById(R.id.button_send);
-        mSendButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                TextView view = (TextView) findViewById(R.id.edit_text_out);
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-        });
+//        mSendButton = (Button) findViewById(R.id.button_send);
+//        mSendButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Send a message using content of the edit text widget
+//                TextView view = (TextView) findViewById(R.id.edit_text_out);
+//                String message = view.getText().toString();
+//                sendMessage(message);
+//            }
+//        });
 
         // Initialize the BluetoothChatService to perform bluetooth connections
         mClientChatService = new BluetoothChatService(this, mHandler, N_CLIENTS);
@@ -196,15 +232,15 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
         if(D) Log.e(TAG, "--- ON DESTROY ---");
     }
 
-    private void ensureDiscoverable() {
-        if(D) Log.d(TAG, "ensure discoverable");
-        if (mBluetoothAdapter.getScanMode() !=
-                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent);
-        }
-    }
+//    private void ensureDiscoverable() {
+//        if(D) Log.d(TAG, "ensure discoverable");
+//        if (mBluetoothAdapter.getScanMode() !=
+//                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+//            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//            startActivity(discoverableIntent);
+//        }
+//    }
 
     /**
      * Sends a message.
@@ -314,7 +350,11 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
 
             if (action.equals(BluetoothDevice.ACTION_FOUND)){
                 BluetoothDevice device = intent.getParcelableExtra (BluetoothDevice.EXTRA_DEVICE);
+                if (device.getName()==null){
+                    return;
+                }
                 mBTDevices.add(device);
+                Log.e("BTdevices: ","device: "+device.getName());
                 Log.d(TAG, "mBR3 onReceive: " + device.getName() + ": " + device.getAddress());
                 mDeviceListAdapter = new DeviceListAdapter(context, R.layout.device_adapter_view, mBTDevices);
                 lvNewDevices.setAdapter(mDeviceListAdapter);

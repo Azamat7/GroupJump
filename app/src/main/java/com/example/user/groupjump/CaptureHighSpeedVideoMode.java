@@ -8,6 +8,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -63,6 +64,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static com.example.user.groupjump.ServerConnectionActivity.mServerChatService;
 
 
 public class CaptureHighSpeedVideoMode  extends Fragment
@@ -303,7 +306,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         linesImageView = (ImageView) view.findViewById(R.id.linesImageView);
         mRecButtonVideo = (Button) view.findViewById(R.id.video_record);
         mRecButtonVideo.setOnClickListener(this);
-        nClients = ServerConnectionActivity.mServerChatService.getClients();
+        nClients = mServerChatService.getClients();
         View decorView = getActivity().getWindow().getDecorView();
         getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#000000")));
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
@@ -850,7 +853,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
 //         wait until all Target Times are received.
 
-        while(!(nClients == ServerConnectionActivity.mServerChatService.getIsAllTimeReceived())) {
+        while(!(nClients == mServerChatService.getIsAllTimeReceived())) {
             // wait
         }
 
@@ -889,20 +892,20 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
             Bitmap savedBitmap;
 
-            long timeToSend = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTargetTime();
-            String deviceName = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getConnectedDeviceName();
-            String address = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getConnectedDeviceAddress();
-            ArrayList<String> accData = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getAccData();
-            ArrayList<String> horizontalAccelerationData = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getHorAccData();
+            long timeToSend = mServerChatService.getConnectedThreads().get(i).getTargetTime();
+            String deviceName = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceName();
+            String address = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceAddress();
+            ArrayList<String> accData = mServerChatService.getConnectedThreads().get(i).getAccData();
+            ArrayList<String> horizontalAccelerationData = mServerChatService.getConnectedThreads().get(i).getHorAccData();
 
-            ArrayList<String> generalAccDataAlongX = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongX();
-            ArrayList<String> generalAccDataAlongY = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongY();
-            ArrayList<String> generalAccDataAlongZ = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongZ();
+            ArrayList<String> generalAccDataAlongX = mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongX();
+            ArrayList<String> generalAccDataAlongY = mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongY();
+            ArrayList<String> generalAccDataAlongZ = mServerChatService.getConnectedThreads().get(i).getGeneralAccDataAlongZ();
 
-            ArrayList<String> timeData = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTimeData();
-            long jumpStart = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTimeJumpStart();
-            long jumpEnd = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTimeJumpEnd();
-            long dataStartTime = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getDataStartTime();
+            ArrayList<String> timeData = mServerChatService.getConnectedThreads().get(i).getTimeData();
+            long jumpStart = mServerChatService.getConnectedThreads().get(i).getTimeJumpStart();
+            long jumpEnd = mServerChatService.getConnectedThreads().get(i).getTimeJumpEnd();
+            long dataStartTime = mServerChatService.getConnectedThreads().get(i).getDataStartTime();
 
             long diff = timeToSend - (videoStopTimeInMillis - duration);
             averageTime += diff;
@@ -1052,6 +1055,17 @@ public class CaptureHighSpeedVideoMode  extends Fragment
                 pmsm.process_video(myDir);
             }
         }
+
+        mRecButtonVideo.setText("Start");
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                while (mServerChatService.getConnectedThreads().size() < nClients) {
+                }
+                mRecButtonVideo.setEnabled(true);
+            }
+        }, 100);
     }
 
     private void stopRecordingVideoOnPause() {
