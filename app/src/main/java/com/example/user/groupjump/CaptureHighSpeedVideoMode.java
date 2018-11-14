@@ -9,6 +9,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -33,6 +34,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.app.ActivityCompat;
@@ -206,6 +208,8 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
     private String currentDateAndTime;
 
+    private int mFramesNumber;
+
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its status.
      */
@@ -311,6 +315,13 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#000000")));
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
         decorView.setSystemUiVisibility(uiOptions);
+
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());;
+        String defaultString = "240";
+        String temp = sharedPref.getString("frames_number",defaultString);
+        mFramesNumber = Integer.valueOf(temp);
+        //mFramesNumber= VideoHighFPSActivity.getmFramesNumber();
     }
 
     private void setUpLines(int clients, int width, int height) {
@@ -716,6 +727,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
     //    private MediaFormat mMediaFormat;
     private void setUpMediaRecorder() throws IOException {
+        Log.e("mFramesNumber: ",Integer.toString(mFramesNumber));
         final Activity activity = getActivity();
         if (null == activity) {
             return;
@@ -726,7 +738,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         videoFile = getVideoFile(activity);
         mMediaRecorder.setOutputFile(videoFile.getAbsolutePath());
         mMediaRecorder.setVideoEncodingBitRate(100000000);
-        mMediaRecorder.setVideoFrameRate(240);
+        mMediaRecorder.setVideoFrameRate(mFramesNumber);
 //        mMediaRecorder.setCaptureRate(120);
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
         //mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);

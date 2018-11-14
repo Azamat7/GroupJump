@@ -53,4 +53,6 @@ dependencies {
 
     compile 'org.jcodec:jcodec:0.2.2'
     compile 'org.jcodec:jcodec-android:0.2.3'
+
+    implementation 'com.android.support:preference-v7:26.1.0'
 }

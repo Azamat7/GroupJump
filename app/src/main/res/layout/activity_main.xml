@@ -36,17 +36,17 @@
             android:backgroundTint="#3F51B5"
             />
 
-        <Button
-            android:id="@+id/ipButton"
-            android:layout_marginTop="20dp"
-            android:layout_width="240dp"
-            android:layout_height="100dp"
-            android:text="IP"
-            android:layout_gravity="center"
-            android:backgroundTint="#3F51B5"
-            android:textColor="@android:color/white"
-            android:textSize="25dp"
-            />
+        <!--<Button-->
+            <!--android:id="@+id/ipButton"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_width="240dp"-->
+            <!--android:layout_height="100dp"-->
+            <!--android:text="IP"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:backgroundTint="#3F51B5"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="25dp"-->
+            <!--/>-->
 
     </LinearLayout>
 

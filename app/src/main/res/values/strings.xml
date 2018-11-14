@@ -5,6 +5,22 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="frames_options">
+        <item>240</item>
+        <item>180</item>
+        <item>120</item>
+        <item>60</item>
+        <item>24</item>
+    </string-array>
+
+    <string-array name="frames_options_values">
+        <item>240</item>
+        <item>180</item>
+        <item>120</item>
+        <item>60</item>
+        <item>24</item>
+    </string-array>
+
     <string name="radio_slowmotion">Slowmotion Video</string>
     <string name="radio_jump">Jumping Photo</string>
 

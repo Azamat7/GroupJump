@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="frames_number"
+        android:title="Frame Rate"
+        android:summary="Current frame rate is %s"
+        android:defaultValue="240"
+        android:entries="@array/frames_options"
+        android:entryValues="@array/frames_options_values"/>
+
+</PreferenceScreen>
