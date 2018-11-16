@@ -689,7 +689,8 @@ public class CaptureHighSpeedVideoMode  extends Fragment
     }
 
     private void setUpCaptureRequestBuilder(CaptureRequest.Builder builder) {
-        Range<Integer> fpsRange = Range.create(240, 240);
+        Range<Integer> fpsRange = Range.create(240, 240
+        );
 //        Range<Integer> fpsRange = getHighestFpsRange(availableFpsRange);
         builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
     }
