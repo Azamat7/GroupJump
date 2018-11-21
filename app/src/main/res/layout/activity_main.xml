@@ -30,7 +30,7 @@
             android:layout_marginTop="20dp"
             android:layout_width="240dp"
             android:layout_height="100dp"
-            android:text="Jump Mode"
+            android:text="Sensor Mode"
             android:textSize="25dp"
             android:layout_gravity="center"
             android:backgroundTint="#3F51B5"

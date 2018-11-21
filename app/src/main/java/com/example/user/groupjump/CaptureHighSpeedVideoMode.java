@@ -30,6 +30,9 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -58,6 +61,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -738,7 +742,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         videoFile = getVideoFile(activity);
         mMediaRecorder.setOutputFile(videoFile.getAbsolutePath());
-        mMediaRecorder.setVideoEncodingBitRate(100000000);
+        mMediaRecorder.setVideoEncodingBitRate(10000000);
         mMediaRecorder.setVideoFrameRate(mFramesNumber);
 //        mMediaRecorder.setCaptureRate(120);
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
@@ -870,20 +874,23 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             // wait
         }
 
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        final MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         mediaMetadataRetriever.setDataSource(filePath);
 
         long duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 
-        int height, width;
+        final int height, width;
 
-//        FFmpegMediaMetadataRetriever mediaRetriever = new FFmpegMediaMetadataRetriever();
-//        mediaRetriever.setDataSource(filePath);
-//
-//        Bitmap sample = mediaRetriever.getFrameAtTime(0);
-//
-//        height = sample.getHeight();
-//        width = sample.getWidth();
+
+        //FFmpegMediaMetadataRetriever mediaRetriever = new FFmpegMediaMetadataRetriever();
+        //mediaRetriever.setDataSource(filePath);
+
+
+        Bitmap sample = mediaMetadataRetriever.getFrameAtTime(0);
+        //Bitmap sample = mediaRetriever.getFrameAtTime(0);
+
+        height = sample.getHeight();
+        width = sample.getWidth();
 
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/MSD/" + currentDateAndTime);
@@ -902,9 +909,6 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         long averageTime = 0;
 
         for (int i = 0; i < nClients; i++) {
-
-            Bitmap savedBitmap;
-
             long timeToSend = mServerChatService.getConnectedThreads().get(i).getTargetTime();
             String deviceName = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceName();
             String address = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceAddress();
@@ -920,12 +924,12 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             long jumpEnd = mServerChatService.getConnectedThreads().get(i).getTimeJumpEnd();
             long dataStartTime = mServerChatService.getConnectedThreads().get(i).getDataStartTime();
 
-            long diff = timeToSend - (videoStopTimeInMillis - duration);
+            final long diff = timeToSend - (videoStopTimeInMillis - duration);
             averageTime += diff;
             jumpStart = jumpStart - (videoStopTimeInMillis - duration);
             jumpEnd = jumpEnd - (videoStopTimeInMillis - duration);
 
-            String deviceId = deviceName + "_" + address;
+            final String deviceId = deviceName + "_" + address;
 
             File dataFile = new File(myDir, "VerticalAccelerationData_" + deviceId + ".txt");
             File dataHorizontalFile = new File(myDir, "HorizontalAccelerationData_" + deviceId + ".txt");
@@ -933,27 +937,71 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
             Log.d(TAG, "Time" + i + ": " + timeToSend);
 
-//            Bitmap frame = mediaRetriever.getFrameAtTime(diff * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
-//
-//            if (orientationOfScreen == Configuration.ORIENTATION_PORTRAIT) {
-//                Matrix matrix = new Matrix();
-//
-//                matrix.postRotate(90);
-//
-//                Bitmap scaledBitmap = Bitmap.createScaledBitmap(frame,width,height,true);
-//
-//                Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-//
-//                saveImage(rotatedBitmap, currentDateAndTime, deviceId);
-//
-//                savedBitmap = rotatedBitmap;
-//
-//                savedImages.add(savedBitmap);
-//            } else {
-//                savedBitmap = frame;
-//                saveImage(savedBitmap, currentDateAndTime, deviceId);
-//                savedImages.add(savedBitmap);
-//            }
+            //Bitmap frame = mediaRetriever.getFrameAtTime(diff * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+
+            if (!VideoHighFPSActivity.getMode().equals("slowmotion")) {
+                Log.e("YAY", "I wasn't supposed to enter here");
+                final int index = i;
+                final long aveTime = averageTime;
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final Bitmap savedBitmap;
+                        final Bitmap frame = mediaMetadataRetriever.getFrameAtTime(diff * 1000, mediaMetadataRetriever.OPTION_CLOSEST);
+
+                        if (orientationOfScreen == Configuration.ORIENTATION_PORTRAIT) {
+                            Matrix matrix = new Matrix();
+
+                            matrix.postRotate(90);
+
+                            Bitmap scaledBitmap = Bitmap.createScaledBitmap(frame, width, height, true);
+
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+                            if (nClients == 2) {
+                                saveImage(rotatedBitmap, currentDateAndTime, deviceId, false);
+                            } else {
+                                saveImage(rotatedBitmap, currentDateAndTime, deviceId, true);
+                            }
+                            savedBitmap = rotatedBitmap;
+
+                            savedImages.add(savedBitmap);
+                        } else {
+                            savedBitmap = frame;
+                            if (nClients == 2) {
+                                saveImage(savedBitmap, currentDateAndTime, deviceId, false);
+                            } else {
+                                saveImage(savedBitmap, currentDateAndTime, deviceId, true);
+                            }
+                            savedImages.add(savedBitmap);
+                        }
+
+                        if (index == 1 && nClients == 2) {
+                            long averageTime = aveTime / nClients;
+
+                            Bitmap averageFrame = mediaMetadataRetriever.getFrameAtTime(averageTime * 1000, mediaMetadataRetriever.OPTION_CLOSEST);
+                            //Bitmap averageFrame = mediaRetriever.getFrameAtTime(averageTime * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
+
+                            Matrix matrix = new Matrix();
+
+                            matrix.postRotate(90);
+
+                            Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
+
+                            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+
+//            saveImage(rotatedBitmap, currentDateAndTime, "Average");
+
+                            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1), axis.get(0));
+                            Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
+
+                            saveImage(blended1, currentDateAndTime, "Blended1", false);
+                            saveImage(blended2, currentDateAndTime, "Blended2", true);
+                        }
+                    }
+                });
+            }
+
 
             try {
                 BufferedWriter out = new BufferedWriter(new FileWriter(jumpStats, true), 1024);
@@ -1000,12 +1048,12 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 //            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 //            savedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
 //            byte[] image = bytes.toByteArray();
-
+//
 //            String toSend = BitMapToString(savedBitmap);
 //            Log.e(TAG, "Sending String: " + toSend);
 //            toSend += "#";
 //            ServerConnectionActivity.mServerChatService.writeToOneThread(toSend.getBytes(), ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i));
-
+//
 //            int byteArraySize = image.length;
 //            Log.e(TAG, "Byte Array Size: " + byteArraySize);
 //            byte[] arraySize = new byte[4];
@@ -1013,7 +1061,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 //            arraySize[1] = (byte) ((byteArraySize >> 8) & 0xFF);
 //            arraySize[2] = (byte) ((byteArraySize >> 16) & 0xFF);
 //            arraySize[3] = (byte) ((byteArraySize >> 24) & 0xFF);
-
+//
 //            String imageBytes = null;
 //            try {
 //                imageBytes = bytes.toString("UTF-8");
@@ -1030,30 +1078,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 //            }
 //            ServerConnectionActivity.mServerChatService.writeToOneThread(arraySize, ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i));
 //            ServerConnectionActivity.mServerChatService.writeToOneThread(image, ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i));
-        }
-
-//        if (nClients == 2) {
-//
-//            averageTime = averageTime / nClients;
-//
-//            Bitmap averageFrame = mediaRetriever.getFrameAtTime(averageTime * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
-//
-//            Matrix matrix = new Matrix();
-//
-//            matrix.postRotate(90);
-//
-//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
-//
-//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-//
-////            saveImage(rotatedBitmap, currentDateAndTime, "Average");
-//
-//            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1), axis.get(0));
-//            Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
-//
-//            saveImage(blended1, currentDateAndTime, "Blended1");
-//            saveImage(blended2, currentDateAndTime, "Blended2");
-//        }
+    }
 
         Toast.makeText(getContext(), "All data is saved!", Toast.LENGTH_SHORT).show();
 
@@ -1157,7 +1182,41 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         }
     }
 
-    public static String saveImage(Bitmap finalBitmap, String folder, String deviceId) {
+    private static void scanMedia(File file) {
+        //Broadcast the Media Scanner Intent to trigger it
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Intent mediaScanIntent = new Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri contentUri = Uri.fromFile(file.getAbsoluteFile());
+            mediaScanIntent.setData(contentUri);
+            VideoHighFPSActivity.context.sendBroadcast(mediaScanIntent);
+        } else {
+            VideoHighFPSActivity.context.sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://"
+                            + Environment.getExternalStorageDirectory())));
+        }
+    }
+
+    public static String saveImage(Bitmap finalBitmap, String folder, String deviceId, boolean gallery) {
+
+        if (gallery) {
+            final String appDirectoryName = "MotionSnap";
+            final File imageRoot = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), appDirectoryName);
+            imageRoot.mkdir();
+            String time = String.valueOf(System.currentTimeMillis());
+            final File image = new File(imageRoot, time+ ".jpg");
+            try {
+                FileOutputStream out = new FileOutputStream(image);
+                finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+                scanMedia(image);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/MSD/" + folder);
         String fname = "Image_"+ deviceId + ".jpg";

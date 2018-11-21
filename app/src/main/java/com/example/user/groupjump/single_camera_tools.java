@@ -1,8 +1,12 @@
 package com.example.user.groupjump;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.camera2.TotalCaptureResult;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -217,9 +221,9 @@ public class single_camera_tools {
         //}
         Log.e("Frames: ",Integer.toString(baseFramesIndices.size()+slowFramesIndices.size()+gradStartFramesIndices.size()+gradEndFramesIndices.size()));
 
-        for (int z=0;z<gradStartFramesIndices.size();z++){
-            Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
-        }
+//        for (int z=0;z<gradStartFramesIndices.size();z++){
+//            Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
+//        }
 
         final File resultsFolder = resultsFolderPath;
 
@@ -232,23 +236,15 @@ public class single_camera_tools {
                 try {
                     FrameRecorder recorder = new FFmpegFrameRecorder(file,videoGrabber.getImageWidth(),videoGrabber.getImageHeight());
                     recorder.setFrameRate(24);
+                    recorder.setVideoMetadata("rotate","90");
                     recorder.setVideoBitrate(100000000);
                     recorder.start();
-                    int ratio = 10;
                     do {
                         try {
                             vFrame = videoGrabber.grabFrame();
                             if(vFrame != null){
                                 if (baseFramesIndices.contains(i) || slowFramesIndices.contains(i) || gradStartFramesIndices.contains(i) || gradEndFramesIndices.contains(i)){
                                     try{
-                                        int currentRatio = Math.round(i*100/nTotalFrameSource);
-                                        if (currentRatio>ratio) {
-                                            String message = "Completion: ";
-                                            message += Integer.toString(ratio);
-                                            message += " %";
-                                            publishProgress(message);
-                                            ratio+=10;
-                                        }
                                         Log.e("Frame written:",Integer.toString(i));
                                         recorder.record(vFrame);
                                     }catch (Exception e){
@@ -258,6 +254,16 @@ public class single_camera_tools {
                             }
                         } catch (Exception e) {
                             Log.e("javacv", "video grabFrame failed: "+ e);
+                        }
+                        if (i%100==0){
+                            int completion = Math.round(i*100/nTotalFrameSource);
+                            if (completion>=100){
+                                completion = 100;
+                            }
+                            String message = "Completion: ";
+                            message += Integer.toString(completion);
+                            message += " %";
+                            publishProgress(message);
                         }
                         i+=1;
                     }while(vFrame!=null);
@@ -270,6 +276,18 @@ public class single_camera_tools {
                 }catch(Exception e){
                     Log.e("encoder: ",e.toString());
                 } finally {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        Intent mediaScanIntent = new Intent(
+                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        Uri contentUri = Uri.fromFile(file.getAbsoluteFile());
+                        mediaScanIntent.setData(contentUri);
+                        VideoHighFPSActivity.context.sendBroadcast(mediaScanIntent);
+                    } else {
+                        VideoHighFPSActivity.context.sendBroadcast(new Intent(
+                                Intent.ACTION_MEDIA_MOUNTED,
+                                Uri.parse("file://"
+                                        + Environment.getExternalStorageDirectory())));
+                    }
                 }
                 return null;
             }
@@ -455,12 +473,11 @@ public class single_camera_tools {
 
         List<Integer> gradIndices = new ArrayList<Integer>();
 
-        Log.e("sdf","YAY");
         for (int k=0; k<edgePairs.size();k++){
-            Log.e("edgePairs.get(k).get(0)",Integer.toString(edgePairs.get(k).get(0)));
-            Log.e("edgePairs.get(k).get(1)",Integer.toString(edgePairs.get(k).get(1)));
+            //Log.e("edgePairs.get(k).get(0)",Integer.toString(edgePairs.get(k).get(0)));
+            //Log.e("edgePairs.get(k).get(1)",Integer.toString(edgePairs.get(k).get(1)));
             List<Integer> temp = slowTimeInterval(edgePairs.get(k).get(0),edgePairs.get(k).get(1),baseFPS,sourceFPS,slowRatesList[k]);
-            Log.e("temp.size()",Integer.toString(temp.size()));
+            //Log.e("temp.size()",Integer.toString(temp.size()));
             gradIndices.addAll(temp);
         }
 
