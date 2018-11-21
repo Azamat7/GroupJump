@@ -962,9 +962,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
                             } else {
                                 saveImage(rotatedBitmap, currentDateAndTime, deviceId, true);
                             }
-                            savedBitmap = rotatedBitmap;
-
-                            savedImages.add(savedBitmap);
+                            savedImages.add(scaledBitmap);
                         } else {
                             savedBitmap = frame;
                             if (nClients == 2) {
@@ -976,18 +974,18 @@ public class CaptureHighSpeedVideoMode  extends Fragment
                         }
 
                         if (index == 1 && nClients == 2) {
-                            long averageTime = aveTime / nClients;
+                            //long averageTime = aveTime / nClients;
 
-                            Bitmap averageFrame = mediaMetadataRetriever.getFrameAtTime(averageTime * 1000, mediaMetadataRetriever.OPTION_CLOSEST);
+                            //Bitmap averageFrame = mediaMetadataRetriever.getFrameAtTime(averageTime * 1000, mediaMetadataRetriever.OPTION_CLOSEST);
                             //Bitmap averageFrame = mediaRetriever.getFrameAtTime(averageTime * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
 
-                            Matrix matrix = new Matrix();
+                            //Matrix matrix = new Matrix();
 
-                            matrix.postRotate(90);
+                            //matrix.postRotate(90);
 
-                            Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
+                            //Bitmap scaledBitmap = Bitmap.createScaledBitmap(averageFrame, width, height, true);
 
-                            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+                            //Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
 //            saveImage(rotatedBitmap, currentDateAndTime, "Average");
 
