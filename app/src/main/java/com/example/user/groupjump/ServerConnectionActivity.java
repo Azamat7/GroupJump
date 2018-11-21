@@ -224,11 +224,11 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
                         switch (msg.arg1) {
                             case BluetoothChatService.STATE_CONNECTED:
                                 Log.d("mHandler: ", "connected to "+mConnectedDeviceName);
-                                Toast.makeText(getApplicationContext(), "connected to" + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                                 break;
                             case BluetoothChatService.STATE_CONNECTING:
                                 Log.d("mHandler: ", "state connecting");
-                                Toast.makeText(getApplicationContext(), "connected to" + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
                                 break;
                             case BluetoothChatService.STATE_LISTEN:
                             case BluetoothChatService.STATE_NONE:

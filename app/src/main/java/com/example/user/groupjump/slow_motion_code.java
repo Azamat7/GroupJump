@@ -138,11 +138,13 @@ public class slow_motion_code {
 
         if (process){
             // 5. create ./sm_results/ folder where output slow-mo videos will be located.
-            String resultFolder = "/sm_results";
-            File sm_results_folder = sct.create_folder(sourceFolderPath,resultFolder);
+            //String resultFolder = "/sm_results";
+            //File sm_results_folder = sct.create_folder(sourceFolderPath,resultFolder);
 
             // 6. Create slow motion video
-            File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,adjusted_time_peaks,slow_options,motion_type,real_peak_offset);
+            sct.write_slow_video(sourceFolderPath,adjusted_time_peaks,slow_options,motion_type,real_peak_offset);
+            //File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,adjusted_time_peaks,slow_options,motion_type,real_peak_offset);
+
 
 //            final File sfp = sourceFolderPath;
 //            final File srf = sm_results_folder;

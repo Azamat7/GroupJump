@@ -174,7 +174,7 @@ public class single_camera_tools {
         }
     }
 
-    public static File write_slow_video(File sourceFolderPath, File resultsFolderPath, List<Float> tPeaksList, int[] slowOptions, String motinoType, int real_peak_offset){
+    public static void write_slow_video(File sourceFolderPath, List<Float> tPeaksList, int[] slowOptions, String motinoType, int real_peak_offset){
         int baseFPS = 22;
         String input_video = "encoded.mp4";
 
@@ -225,12 +225,16 @@ public class single_camera_tools {
 //            Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
 //        }
 
-        final File resultsFolder = resultsFolderPath;
-
         class writeVideo extends AsyncTask<Void,String,Void>{
             @Override
             protected Void doInBackground(Void... voids) {
-                File file = new File(resultsFolder, "test.mp4");
+
+                final String appDirectoryName = "MotionSnap";
+                final File imageRoot = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), appDirectoryName);
+                imageRoot.mkdir();
+                String time = String.valueOf(System.currentTimeMillis());
+                File file = new File(imageRoot, time+".mp4");
+                //File file = new File(resultsFolder, "test.mp4");
                 Frame vFrame = null;
                 int i = 0;
                 try {
@@ -308,9 +312,6 @@ public class single_camera_tools {
         writeVideo task = new writeVideo();
         task.execute();
 
-
-
-        return resultsFolderPath;
     }
 
     private static List<List<Integer>> get_sm_frames_swing(List<Float> tPeaksList,int[] slowOptions,int nTotalFrameSources, double sourceFPS, int baseFPS ){

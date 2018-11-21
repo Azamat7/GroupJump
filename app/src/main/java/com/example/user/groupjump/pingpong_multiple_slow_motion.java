@@ -36,7 +36,7 @@ public class pingpong_multiple_slow_motion {
 
         String resultFolder = "/sm_results";
         File sm_results_folder = sct.create_folder(sourceFolderPath,resultFolder);
-        File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,t_peaks,SLOW_OPTIONS,motionType,REAL_PEAK_OFFSET);
+        //File outputFolderPath = sct.write_slow_video(sourceFolderPath,sm_results_folder,t_peaks,SLOW_OPTIONS,motionType,REAL_PEAK_OFFSET);
 
 
     }

@@ -940,7 +940,6 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             //Bitmap frame = mediaRetriever.getFrameAtTime(diff * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
 
             if (!VideoHighFPSActivity.getMode().equals("slowmotion")) {
-                Log.e("YAY", "I wasn't supposed to enter here");
                 final int index = i;
                 final long aveTime = averageTime;
                 AsyncTask.execute(new Runnable() {
@@ -992,7 +991,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
 //            saveImage(rotatedBitmap, currentDateAndTime, "Average");
 
-                            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1), axis.get(0));
+                            Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1),   axis.get(0));
                             Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
 
                             saveImage(blended1, currentDateAndTime, "Blended1", false);
