@@ -1,6 +1,9 @@
 package com.example.user.groupjump;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -209,14 +212,14 @@ public class single_camera_tools {
         final int nTotalFrameSource = x.intValue();
         Log.e("Frame Number: ", Integer.toString(nTotalFrameSource));
 
-        //if (motinoType.equals("swing")){
-        List<List<Integer>> framesIndices = get_sm_frames_swing(tPeaksAdjustedOffset,slowOptions,nTotalFrameSource,sourceFPS,baseFPS);
+
+        final List<List<Integer>> framesIndices = get_sm_frames_swing(tPeaksAdjustedOffset,slowOptions,nTotalFrameSource,sourceFPS,baseFPS);
         final List<Integer> baseFramesIndices = framesIndices.get(0);
         final List<Integer> slowFramesIndices = framesIndices.get(1);
         final List<Integer> gradStartFramesIndices = framesIndices.get(2);
         final List<Integer> gradEndFramesIndices = framesIndices.get(3);
         //}
-        Log.e("Frames: ",Integer.toString(baseFramesIndices.size()+slowFramesIndices.size()+gradStartFramesIndices.size()+gradEndFramesIndices.size()));
+        //Log.e("Frames: ",Integer.toString(baseFramesIndices.size()+slowFramesIndices.size()+gradStartFramesIndices.size()+gradEndFramesIndices.size()));
 
 //        for (int z=0;z<gradStartFramesIndices.size();z++){
 //            Log.e("GradStartFrameIndices",Integer.toString(gradStartFramesIndices.get(z)));
@@ -225,7 +228,6 @@ public class single_camera_tools {
         class writeVideo extends AsyncTask<Void,String,Void>{
             @Override
             protected Void doInBackground(Void... voids) {
-
                 final String appDirectoryName = "MotionSnap";
                 final File imageRoot = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), appDirectoryName);
                 imageRoot.mkdir();
@@ -308,7 +310,6 @@ public class single_camera_tools {
 
         writeVideo task = new writeVideo();
         task.execute();
-
     }
 
     private static List<List<Integer>> get_sm_frames_swing(List<Float> tPeaksList,int[] slowOptions,int nTotalFrameSources, double sourceFPS, int baseFPS ){
@@ -481,7 +482,5 @@ public class single_camera_tools {
 
         return gradIndices;
     }
-
-
 
 }

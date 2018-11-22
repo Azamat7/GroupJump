@@ -40,6 +40,8 @@
                 android:value=".MainActivity"/>
         </activity>
 
+        <service android:enabled="true" android:name="com.example.user.groupjump.WriteVideoIntentService" />
+
         <activity android:name="com.example.user.groupjump.VideoActivity" />
         <activity android:name="com.example.user.groupjump.DataActivity" />
         <activity android:name="com.example.user.groupjump.VideoHighFPSActivity" />
