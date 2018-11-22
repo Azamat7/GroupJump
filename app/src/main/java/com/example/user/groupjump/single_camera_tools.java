@@ -1,15 +1,12 @@
 package com.example.user.groupjump;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.hardware.camera2.TotalCaptureResult;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
@@ -484,5 +481,7 @@ public class single_camera_tools {
 
         return gradIndices;
     }
+
+
 
 }
