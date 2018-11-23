@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,7 +65,17 @@ public class VideoHighFPSActivity extends AppCompatActivity {
     }
 
     public static void videoWritingToast(String message){
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        final Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+        toast.show();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                toast.cancel();
+            }
+        }, 1000);
+
     }
 
     public static String getMode(){

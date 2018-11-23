@@ -398,7 +398,7 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
         boolean connected = true;
         while (mClientChatService.getConnectedThreads().size()  < N_CLIENTS) {
             long timeNow = System.currentTimeMillis();
-            if ((timeNow-timeInitial)>3000){
+            if ((timeNow-timeInitial)>5000){
                 connected = false;
                 break;
             }

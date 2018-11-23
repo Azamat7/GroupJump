@@ -895,6 +895,18 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/MSD/" + currentDateAndTime);
 
+        // so that gallery does not scan all the files
+        File nomedia = new File(myDir,".nomedia");
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(nomedia, true), 1024);
+            String entry = "DeviceId, TargetTime, JumpStart, JumpEnd, VideoDuration, VideoEndUTC, DataStartUTC, DataDuration\n";
+            out.write(entry);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         File jumpStats = new File(myDir, "jumpStats.txt");
 
         try {
