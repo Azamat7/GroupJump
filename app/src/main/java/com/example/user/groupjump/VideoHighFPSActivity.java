@@ -59,11 +59,6 @@ public class VideoHighFPSActivity extends AppCompatActivity {
         unregisterReceiver(writeVideoReceiver);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     public static void videoWritingToast(String message){
         final Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
         toast.show();
