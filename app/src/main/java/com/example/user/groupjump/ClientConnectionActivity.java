@@ -100,7 +100,7 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
         String defaultString = "default";
         final String name = sharedPref.getString(getString(R.string.lastDeviceName),defaultString);
         final String address = sharedPref.getString(getString(R.string.lastDeviceAddress),defaultString);
-        if (name=="default"){
+        if (name.equals("default")){
             mConnectLast.setVisibility(View.INVISIBLE);
         }else {
             mConnectLast.setText("Connect to " + name);
@@ -121,7 +121,7 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
                     boolean connected = true;
                     while (mClientChatService.getConnectedThreads().size() < N_CLIENTS) {
                         long timeNow = System.currentTimeMillis();
-                        if ((timeNow - timeInitial) > 3000) {
+                        if ((timeNow - timeInitial) > 5000) {
                             connected = false;
                             break;
                         }
@@ -455,7 +455,4 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
             Log.d(TAG, "checkBTPermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
     }
-
-
-
 }

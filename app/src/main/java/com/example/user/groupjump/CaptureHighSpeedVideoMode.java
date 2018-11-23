@@ -394,6 +394,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             case R.id.video_record: {
                 decorView.setSystemUiVisibility(uiOptions);
                 if (mIsRecordingVideo) {
+                    mRecButtonVideo.setText("Processing...");
                     stopRecordingVideo();
                 } else {
                     startRecordingVideo();
@@ -827,7 +828,6 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         // UI
         mIsRecordingVideo = false;
         videoStopTimeInMillis = System.currentTimeMillis();
-        mRecButtonVideo.setText("Processing...");
         // Stop recording
         try {
             mPreviewSessionHighSpeed.stopRepeating();
@@ -972,6 +972,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
                             if (nClients == 2) {
                                 saveImage(rotatedBitmap, currentDateAndTime, deviceId, false);
                             } else {
+                                VideoHighFPSActivity.action = scaledBitmap;
                                 saveImage(rotatedBitmap, currentDateAndTime, deviceId, true);
                             }
                             savedImages.add(scaledBitmap);
@@ -980,6 +981,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
                             if (nClients == 2) {
                                 saveImage(savedBitmap, currentDateAndTime, deviceId, false);
                             } else {
+                                VideoHighFPSActivity.action = savedBitmap;
                                 saveImage(savedBitmap, currentDateAndTime, deviceId, true);
                             }
                             savedImages.add(savedBitmap);
@@ -1003,10 +1005,16 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
                             Bitmap blended1 = blendImages(savedImages.get(0), savedImages.get(1),   axis.get(0));
                             Bitmap blended2 = blendImages(savedImages.get(1), savedImages.get(0), axis.get(0));
-
+                            VideoHighFPSActivity.action = blended2;
                             saveImage(blended1, currentDateAndTime, "Blended1", false);
                             saveImage(blended2, currentDateAndTime, "Blended2", true);
                         }
+
+                        String mode = VideoHighFPSActivity.getMode();
+                        if (mode.equals("jump")){
+                            startActivity(new Intent(getContext(),ImagePreviewActivity.class));
+                        }
+
                     }
                 });
             }
@@ -1094,24 +1102,18 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
         String mode = VideoHighFPSActivity.getMode();
         if (mode.equals("slowmotion")) {
-            if (nClients==1) {
-                VideoHighFPSActivity.startWriteVideoService(myDir);
-            }else if (nClients==2){
-                pingpong_multiple_slow_motion pmsm = new pingpong_multiple_slow_motion();
-                pmsm.process_video(myDir);
-            }
-        }
-
-        mRecButtonVideo.setText("Start");
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                while (mServerChatService.getConnectedThreads().size() < nClients) {
+            VideoHighFPSActivity.startWriteVideoService(myDir);
+            mRecButtonVideo.setText("Start");
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    while (mServerChatService.getConnectedThreads().size() < nClients) {
+                    }
+                    mRecButtonVideo.setEnabled(true);
                 }
-                mRecButtonVideo.setEnabled(true);
-            }
-        }, 100);
+            }, 100);
+        }
     }
 
     private void stopRecordingVideoOnPause() {

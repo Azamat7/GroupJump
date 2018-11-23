@@ -45,14 +45,14 @@ dependencies {
     implementation 'commons-net:commons-net:3.6'
     testImplementation 'junit:junit:4.12'
 
-    compile group: 'org.bytedeco', name: 'javacv', version: '1.4.3'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-arm'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-x86'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-arm'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-x86'
+    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.3'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-arm'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.3-1.4.3', classifier: 'android-x86'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-arm'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.2-1.4.3', classifier: 'android-x86'
 
-    compile 'org.jcodec:jcodec:0.2.2'
-    compile 'org.jcodec:jcodec-android:0.2.3'
+    implementation 'org.jcodec:jcodec:0.2.2'
+    implementation 'org.jcodec:jcodec-android:0.2.3'
 
     implementation 'com.android.support:preference-v7:26.1.0'
 

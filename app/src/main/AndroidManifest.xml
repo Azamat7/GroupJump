@@ -42,15 +42,20 @@
 
         <service android:enabled="true" android:name="com.example.user.groupjump.WriteVideoIntentService" />
 
-        <activity android:name="com.example.user.groupjump.VideoActivity" />
         <activity android:name="com.example.user.groupjump.DataActivity" />
         <activity android:name="com.example.user.groupjump.VideoHighFPSActivity" />
-        <activity android:name="com.example.user.groupjump.ImagePreviewActivity" />
-        <activity android:name="com.example.user.groupjump.ipAddressActivity" />
+
+        <activity
+            android:name="com.example.user.groupjump.ImagePreviewActivity"
+            android:label="Image Preview"
+            android:parentActivityName=".VideoHighFPSActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".VideoHighFPSActivity" />
+        </activity>
+
         <activity android:name="com.example.user.groupjump.ServerConnectionActivity" />
-        <activity android:name="com.example.user.groupjump.ClientConnectionActivity" />
-        <activity android:name="com.example.user.groupjump.PingTestActivity" />
-        <activity android:name="com.example.user.groupjump.PingReceiveActivity"></activity>
+        <activity android:name="com.example.user.groupjump.ClientConnectionActivity" ></activity>
     </application>
 
 </manifest>

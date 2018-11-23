@@ -41,7 +41,11 @@ public class VideoHighFPSActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_high_fps);
 
         Intent intent = getIntent();
-        mode = intent.getExtras().getString("mode");
+        try {
+            mode = intent.getExtras().getString("mode");
+        }catch (Exception e){
+            mode = "jump";
+        }
         Log.e("mode: ", mode);
 
         if (null == savedInstanceState) {
@@ -60,17 +64,7 @@ public class VideoHighFPSActivity extends AppCompatActivity {
     }
 
     public static void videoWritingToast(String message){
-        final Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
-        toast.show();
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                toast.cancel();
-            }
-        }, 1000);
-
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public static String getMode(){
