@@ -54,8 +54,26 @@
                 android:value=".ServerConnectionActivity" />
         </activity>
 
-        <activity android:name="com.example.user.groupjump.ServerConnectionActivity" />
-        <activity android:name="com.example.user.groupjump.ClientConnectionActivity" ></activity>
+        <activity
+            android:name="com.example.user.groupjump.ServerConnectionActivity"
+            android:label="Camera Mode"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.example.user.groupjump.ClientConnectionActivity"
+            android:label="Sensor Mode"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
+        <!--<activity android:name="com.example.user.groupjump.ServerConnectionActivity" />-->
+        <!--<activity android:name="com.example.user.groupjump.ClientConnectionActivity" />-->
     </application>
 
 </manifest>

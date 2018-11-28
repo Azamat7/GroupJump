@@ -142,6 +142,9 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
             finish();
             return;
         }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Turn on BT Device discoverability
         ensureDiscoverable();
         checkBTPermissions();

@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 import static com.example.user.groupjump.MainActivity.deviceUniqueID;
 
-public class ClientConnectionActivity extends Activity implements AdapterView.OnItemClickListener {
+public class ClientConnectionActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
 
     // Debugging
@@ -151,6 +152,8 @@ public class ClientConnectionActivity extends Activity implements AdapterView.On
             finish();
             return;
         }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
