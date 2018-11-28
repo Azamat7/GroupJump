@@ -74,7 +74,7 @@ public class BluetoothChatService {
     private int nClients;
 
     //
-    public int isAllTimeReceived = 0;
+    private int isAllTimeReceived = 0;
 
 
     // Constants that indicate the current connection state
@@ -704,5 +704,9 @@ public class BluetoothChatService {
             e.getMessage();
             return null;
         }
+    }
+
+    public void reduceIsAllTimeReceived(int nClients){
+        isAllTimeReceived-=nClients;
     }
 }

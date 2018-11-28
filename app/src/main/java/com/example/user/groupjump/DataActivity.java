@@ -43,7 +43,6 @@ public class DataActivity extends AppCompatActivity implements Serializable{
     private Button startButton;
     private Button stopButton;
     private BluetoothAdapter mBluetoothAdapter;
-//    private BluetoothConnectionService mBluetoothConnectionService;
     private BluetoothDevice mBluetoothDevice;
 
     private PowerManager mPowerManager;
@@ -133,18 +132,6 @@ public class DataActivity extends AppCompatActivity implements Serializable{
                 }
             }
         }
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                mBluetoothConnectionService = new BluetoothConnectionService(getApplicationContext());
-//                mBluetoothConnectionService.startClient(mBluetoothDevice, MY_UUID_INSECURE);
-//            }
-//        }, 1000);
-//        mBluetoothConnectionService = new BluetoothConnectionService(this);
-//        mBluetoothConnectionService.startClient(mBluetoothDevice, MY_UUID_INSECURE);
-//        String message = "Started!";
-//        mBluetoothConnectionService.write(message.getBytes(Charset.defaultCharset()));
 
         generalAccelerationAlongX = new ArrayList<>();
         generalAccelerationAlongY = new ArrayList<>();
@@ -431,8 +418,6 @@ public class DataActivity extends AppCompatActivity implements Serializable{
 
     }
 
-
-
     private void sendMSD() {
 
         String targetTimeString = Long.toString(tTarget);
@@ -462,9 +447,13 @@ public class DataActivity extends AppCompatActivity implements Serializable{
 
         Log.e(TAG, "MSD has been sent!");
 
+        finishActivity();
+
+    }
+
+    private void finishActivity(){
         Intent clientConnectionIntent = new Intent(this, ClientConnectionActivity.class);
         startActivity(clientConnectionIntent);
-
     }
 
 

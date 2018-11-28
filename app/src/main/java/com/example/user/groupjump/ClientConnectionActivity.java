@@ -1,9 +1,7 @@
 package com.example.user.groupjump;
 
 import android.Manifest;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -51,9 +49,7 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
     private TextView mTitle;
     private ListView mConversationView;
     private EditText mOutEditText;
-    private Button mSendButton;
     private Button btnDiscoverDevices;
-    private Button btnEnableDisable_Discoverable;
     private ListView lvNewDevices;
     private Button mConnectLast;
 
@@ -89,13 +85,6 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
 
         btnDiscoverDevices = (Button) findViewById(R.id.btnDiscoverDevices);
 
-        //btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
-//        btnEnableDisable_Discoverable.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ensureDiscoverable();
-//            }
-//        });
         mConnectLast = (Button) findViewById(R.id.connect_last);
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         String defaultString = "default";
@@ -104,12 +93,13 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
         if (name.equals("default")){
             mConnectLast.setVisibility(View.INVISIBLE);
         }else {
-            mConnectLast.setText("Connect to " + name);
+            final String buttonText = "Connect to " + name;
+            mConnectLast.setText(buttonText);
             mConnectLast.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mConnectLast.setText("Connecting ...");
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-
                     //create the bond.
                     //NOTE: Requires API 17+? I think this is JellyBean
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -131,6 +121,7 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
                         Intent dataIntent = new Intent(getApplicationContext(), DataActivity.class);
                         startActivity(dataIntent);
                     } else {
+                        mConnectLast.setText(buttonText);
                         Toast.makeText(getApplicationContext(), "Couldn't connect to " + name + ". Please try again.", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -200,21 +191,6 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
         mConversationView = (ListView) findViewById(R.id.in);
         mConversationView.setAdapter(mConversationArrayAdapter);
 
-        // Initialize the compose field with a listener for the return key
-//        mOutEditText = (EditText) findViewById(R.id.edit_text_out);
-//        mOutEditText.setOnEditorActionListener(mWriteListener);
-
-        // Initialize the send button with a listener that for click events
-//        mSendButton = (Button) findViewById(R.id.button_send);
-//        mSendButton.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                // Send a message using content of the edit text widget
-//                TextView view = (TextView) findViewById(R.id.edit_text_out);
-//                String message = view.getText().toString();
-//                sendMessage(message);
-//            }
-//        });
-
         // Initialize the BluetoothChatService to perform bluetooth connections
         mClientChatService = new BluetoothChatService(this, mHandler, N_CLIENTS);
 
@@ -242,16 +218,6 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
         if(D) Log.e(TAG, "--- ON DESTROY ---");
     }
 
-//    private void ensureDiscoverable() {
-//        if(D) Log.d(TAG, "ensure discoverable");
-//        if (mBluetoothAdapter.getScanMode() !=
-//                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-//            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-//            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-//            startActivity(discoverableIntent);
-//        }
-//    }
-
     /**
      * Sends a message.
      * @param message  A string of text to send.
@@ -262,7 +228,6 @@ public class ClientConnectionActivity extends AppCompatActivity implements Adapt
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
-
 
         // Check that there's actually something to send
         if (message.length() > 0) {

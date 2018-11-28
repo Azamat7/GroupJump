@@ -296,28 +296,4 @@ public class ServerConnectionActivity extends AppCompatActivity implements Adapt
         // Another interface callback
         Toast.makeText(getApplicationContext(), "You shall state how many people jump!", Toast.LENGTH_SHORT).show();
     }
-
-
-    // When OK button is pressed
-//    public void okButtonPressed(View view) {
-//        okButton.setEnabled(false);
-//        okButton.setText("Waiting...");
-//        Toast.makeText(this, "Waiting for another device to connect", Toast.LENGTH_SHORT).show();
-//
-//        // here we create server with defined number of clients.
-//
-//        // mClientChatService.start() will run the Accept Thread and create server sockets.
-//        setupChat();
-//        mServerChatService.start();
-//        mServerChatService.setIsServer();
-//        Toast.makeText(getApplicationContext(), "waiting for connection", Toast.LENGTH_SHORT).show();
-//
-//        while (mServerChatService.getConnectedThreads().size() < nClients) {
-//
-//        }
-//        Intent videoIntent = new Intent(this, VideoHighFPSActivity.class);
-//        videoIntent.putExtra("mode",mode);
-//        startActivity(videoIntent);
-//
-//    }
 }

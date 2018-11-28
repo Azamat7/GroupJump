@@ -1017,7 +1017,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
                         String mode = VideoHighFPSActivity.getMode();
                         if (mode.equals("jump")){
-                            mServerChatService.isAllTimeReceived-=nClients;
+                            mServerChatService.reduceIsAllTimeReceived(nClients);
                             mServerChatService.removeThreads();
                             mServerChatService.stop();
                             startActivity(new Intent(getContext(),ImagePreviewActivity.class));
@@ -1123,7 +1123,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 //            }, 100);
             //mServerChatService.removeThreads();
             mServerChatService.stop();
-            mServerChatService.isAllTimeReceived--;
+            mServerChatService.reduceIsAllTimeReceived(nClients);
             Intent serverConnectionIntent = new Intent(VideoHighFPSActivity.context, ServerConnectionActivity.class);
             startActivity(serverConnectionIntent);
         }

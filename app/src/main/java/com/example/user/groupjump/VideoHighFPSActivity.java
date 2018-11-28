@@ -5,16 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.bytedeco.javacv.FrameGrabber;
-
 import java.io.File;
-import java.util.List;
 import java.util.UUID;
 
 public class VideoHighFPSActivity extends AppCompatActivity {
@@ -24,7 +20,6 @@ public class VideoHighFPSActivity extends AppCompatActivity {
     private static final UUID MY_UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
     public static Bitmap action;
-    public static BluetoothConnectionService mBluetoothConnectionService;
     public static boolean isTimeReceived = false;
 
     public static Context context;
