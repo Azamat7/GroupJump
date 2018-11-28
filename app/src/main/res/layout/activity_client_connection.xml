@@ -25,7 +25,7 @@
             android:id="@+id/btnDiscoverDevices"
             android:onClick="btnDiscover"
             android:text="Discover new devices"
-            android:backgroundTint="#3F51B5"
+            android:backgroundTint="@color/colorPrimary"
             android:scaleType="fitXY"
             android:textColor="@android:color/white"/>
     </LinearLayout>
@@ -80,7 +80,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:backgroundTint="#3F51B5"
+        android:backgroundTint="@color/colorPrimary"
         android:scaleType="fitXY"
         android:text="Connect to "
         android:textColor="@android:color/white"

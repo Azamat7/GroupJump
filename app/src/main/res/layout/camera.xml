@@ -39,7 +39,7 @@
                 android:id="@+id/video_record"
                 android:layout_gravity="center"
                 android:scaleType="fitXY"
-                android:backgroundTint="#3F51B5"
+                android:backgroundTint="@color/colorPrimary"
                 android:textColor="@android:color/white"
                 />
 

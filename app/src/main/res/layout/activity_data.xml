@@ -20,7 +20,7 @@
             android:layout_height="120dp"
             android:text="Start"
             android:textSize="40dp"
-            android:backgroundTint="#3F51B5"
+            android:backgroundTint="@color/colorPrimary"
             android:textColor="@android:color/white"
             />
 
