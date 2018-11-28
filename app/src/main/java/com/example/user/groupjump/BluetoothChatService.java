@@ -74,7 +74,7 @@ public class BluetoothChatService {
     private int nClients;
 
     //
-    private int isAllTimeReceived = 0;
+    public int isAllTimeReceived = 0;
 
 
     // Constants that indicate the current connection state
@@ -671,6 +671,11 @@ public class BluetoothChatService {
             }
         }
     }
+
+    public void removeThreads(){
+        mConnThreads.clear();
+    }
+
 
     public static String saveImage(Bitmap finalBitmap) {
         String root = Environment.getExternalStorageDirectory().toString();

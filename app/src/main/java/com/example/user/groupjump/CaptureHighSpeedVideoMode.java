@@ -870,6 +870,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
 //         wait until all Target Times are received.
 
+
         while(!(nClients == mServerChatService.getIsAllTimeReceived())) {
             // wait
         }
@@ -897,6 +898,8 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
         // so that gallery does not scan all the files
         File nomedia = new File(myDir,".nomedia");
+
+        Log.e("alpha67",".nomedia");
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(nomedia, true), 1024);
             String entry = "DeviceId, TargetTime, JumpStart, JumpEnd, VideoDuration, VideoEndUTC, DataStartUTC, DataDuration\n";
@@ -921,6 +924,8 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         long averageTime = 0;
 
         for (int i = 0; i < nClients; i++) {
+
+            Log.e("alpha67","for loop");
             long timeToSend = mServerChatService.getConnectedThreads().get(i).getTargetTime();
             String deviceName = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceName();
             String address = mServerChatService.getConnectedThreads().get(i).getConnectedDeviceAddress();
@@ -1012,6 +1017,9 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
                         String mode = VideoHighFPSActivity.getMode();
                         if (mode.equals("jump")){
+                            mServerChatService.isAllTimeReceived-=nClients;
+                            mServerChatService.removeThreads();
+                            mServerChatService.stop();
                             startActivity(new Intent(getContext(),ImagePreviewActivity.class));
                         }
 
@@ -1103,16 +1111,21 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         String mode = VideoHighFPSActivity.getMode();
         if (mode.equals("slowmotion")) {
             VideoHighFPSActivity.startWriteVideoService(myDir);
-            mRecButtonVideo.setText("Start");
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    while (mServerChatService.getConnectedThreads().size() < nClients) {
-                    }
-                    mRecButtonVideo.setEnabled(true);
-                }
-            }, 100);
+            //mRecButtonVideo.setText("Start");
+            //Handler handler = new Handler();
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    while (mServerChatService.getConnectedThreads().size() < nClients) {
+//                    }
+//                    mRecButtonVideo.setEnabled(true);
+//                }
+//            }, 100);
+            //mServerChatService.removeThreads();
+            mServerChatService.stop();
+            mServerChatService.isAllTimeReceived--;
+            Intent serverConnectionIntent = new Intent(VideoHighFPSActivity.context, ServerConnectionActivity.class);
+            startActivity(serverConnectionIntent);
         }
     }
 

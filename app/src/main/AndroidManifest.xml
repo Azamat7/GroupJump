@@ -48,10 +48,10 @@
         <activity
             android:name="com.example.user.groupjump.ImagePreviewActivity"
             android:label="Image Preview"
-            android:parentActivityName=".VideoHighFPSActivity">
+            android:parentActivityName=".ServerConnectionActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".VideoHighFPSActivity" />
+                android:value=".ServerConnectionActivity" />
         </activity>
 
         <activity android:name="com.example.user.groupjump.ServerConnectionActivity" />

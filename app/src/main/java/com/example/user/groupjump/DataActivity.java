@@ -3,6 +3,7 @@ package com.example.user.groupjump;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -28,6 +29,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.example.user.groupjump.ClientConnectionActivity.mClientChatService;
+import static com.example.user.groupjump.ServerConnectionActivity.mServerChatService;
 
 public class DataActivity extends AppCompatActivity implements Serializable{
 
@@ -184,7 +188,7 @@ public class DataActivity extends AppCompatActivity implements Serializable{
             // sending ping message for data recording start from Client to Server phone.
             String message = "Data Start Ping!";
             byte[] send = message.getBytes();
-            ClientConnectionActivity.mClientChatService.write(send);
+            mClientChatService.write(send);
 
             Toast.makeText(getApplicationContext(), "Data recording started!", Toast.LENGTH_SHORT).show();
 
@@ -284,7 +288,7 @@ public class DataActivity extends AppCompatActivity implements Serializable{
 
             mSensorManager.unregisterListener(sensorEventListener);
 //            new TimeDataStop(this).execute();
-            Toast.makeText(getApplicationContext(), "Stopped!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Stopped", Toast.LENGTH_SHORT).show();
 
             // -----------------------------------------------------------------
             for (int i = 0; i < accelerometerData.size(); i++) {
@@ -454,9 +458,12 @@ public class DataActivity extends AppCompatActivity implements Serializable{
         Log.e(TAG, "msd string length: "+msd.length());
 
         byte[] sendMSD = msd.getBytes();
-        ClientConnectionActivity.mClientChatService.write(sendMSD);
+        mClientChatService.write(sendMSD);
 
         Log.e(TAG, "MSD has been sent!");
+
+        Intent clientConnectionIntent = new Intent(this, ClientConnectionActivity.class);
+        startActivity(clientConnectionIntent);
 
     }
 
