@@ -49,12 +49,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfDouble;
-import org.opencv.imgproc.Imgproc;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -208,6 +202,8 @@ public class CaptureHighSpeedVideoMode  extends Fragment
     private int nClients;
 
     private String currentDateAndTime;
+
+    private long videoStopTimeInMillis;
 
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its status.
@@ -811,7 +807,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         mRecButtonVideo.setEnabled(false);
         // UI
         mIsRecordingVideo = false;
-        VideoActivity.videoStopTimeInMillis = System.currentTimeMillis();
+        videoStopTimeInMillis = System.currentTimeMillis();
         mRecButtonVideo.setText("Processing...");
         // Stop recording
         try {
@@ -909,10 +905,10 @@ public class CaptureHighSpeedVideoMode  extends Fragment
             long jumpEnd = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getTimeJumpEnd();
             long dataStartTime = ServerConnectionActivity.mServerChatService.getConnectedThreads().get(i).getDataStartTime();
 
-            long diff = timeToSend - (VideoActivity.videoStopTimeInMillis - duration);
+            long diff = timeToSend - (videoStopTimeInMillis - duration);
             averageTime += diff;
-            jumpStart = jumpStart - (VideoActivity.videoStopTimeInMillis - duration);
-            jumpEnd = jumpEnd - (VideoActivity.videoStopTimeInMillis - duration);
+            jumpStart = jumpStart - (videoStopTimeInMillis - duration);
+            jumpEnd = jumpEnd - (videoStopTimeInMillis - duration);
 
             String deviceId = deviceName + "_" + address;
 
@@ -946,7 +942,7 @@ public class CaptureHighSpeedVideoMode  extends Fragment
 
             try {
                 BufferedWriter out = new BufferedWriter(new FileWriter(jumpStats, true), 1024);
-                String entry = deviceId + ", " + diff + ", " + jumpStart + ", " + jumpEnd + ", " + duration + ", " + VideoActivity.videoStopTimeInMillis + ", " + dataStartTime + ", " + timeData.get(timeData.size() - 1) + "\n";
+                String entry = deviceId + ", " + diff + ", " + jumpStart + ", " + jumpEnd + ", " + duration + ", " + videoStopTimeInMillis + ", " + dataStartTime + ", " + timeData.get(timeData.size() - 1) + "\n";
                 out.write(entry);
                 out.close();
             } catch (IOException e) {
@@ -1140,20 +1136,20 @@ public class CaptureHighSpeedVideoMode  extends Fragment
         return fname;
     }
 
-    private double amountOfBluriness(Bitmap bmp) {
-        Mat destination = new Mat();
-        Mat matGray = new Mat();
-
-        Mat image = new Mat();
-        Utils.bitmapToMat(bmp, image);
-        Imgproc.cvtColor(image, matGray, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.Laplacian(matGray, destination, 3);
-        MatOfDouble median = new MatOfDouble();
-        MatOfDouble std= new MatOfDouble();
-        Core.meanStdDev(destination, median , std);
-
-        return Math.pow(std.get(0,0)[0],2);
-    }
+//    private double amountOfBluriness(Bitmap bmp) {
+//        Mat destination = new Mat();
+//        Mat matGray = new Mat();
+//
+//        Mat image = new Mat();
+//        Utils.bitmapToMat(bmp, image);
+//        Imgproc.cvtColor(image, matGray, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.Laplacian(matGray, destination, 3);
+//        MatOfDouble median = new MatOfDouble();
+//        MatOfDouble std= new MatOfDouble();
+//        Core.meanStdDev(destination, median , std);
+//
+//        return Math.pow(std.get(0,0)[0],2);
+//    }
 
     private Bitmap blendImages(Bitmap bm1, Bitmap bm2, int axis) {
 
